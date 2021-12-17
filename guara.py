@@ -27,7 +27,7 @@ class Graph:
 
         # -----------------------------------------------
 
-        self.__len = {'verts': 0,'edges': 0} # dicionario com o numero de vertices e arestas
+        self.__shape = {'v': 0,'e': 0} # dicionario com o numero de vertices e arestas
         self.__graph = []
         
         # -----------------------------------------------
@@ -48,11 +48,11 @@ class Graph:
         with open(filename) as f:
             lines = f.readlines() # lista de strings contendo o conteudo de cada linha
 
-        self.__len['verts'] = int(lines[0]) # numero de vertices
+        self.__shape['v'] = int(lines[0]) # numero de vertices
 
-        self.__graph = np.zeros((self.__len['verts'],self.__len['verts']), dtype=np.int8) # inicializando a matriz com zeros (False)
+        self.__graph = np.zeros((self.__shape['v'],self.__shape['v']), dtype=np.int8) # inicializando a matriz com zeros (False)
 
-        self.__len['edges'] = 0
+        self.__shape['e'] = 0
         for edge in lines[1:]: # cada linha representa uma aresta
 
             edge = edge.split()
@@ -64,7 +64,7 @@ class Graph:
 
             if not self.__graph[ edge[1] ][ edge[0] ]: # fazemos essa verificacao para o caso de alguma aresta estar repetida no arquivo texto
                 self.__graph[ edge[1] ][ edge[0] ] = True # so podemos colocar essa linha pois o grafo eh nao-direcionado
-                self.__len['edges'] += 1
+                self.__shape['e'] += 1
 
         return self.__graph
 
@@ -83,19 +83,36 @@ class Graph:
         return self.__graph
 
     @property
-    def len(self):
-        return self.__len
+    def shape(self):
+        return self.__shape
         
     @property
     def n(self):
-        return self.__len['verts']
+        return self.__shape['v']
 
     @property
     def m(self):
-        return self.__len['edges']
+        return self.__shape['e']
+
+    @property
+    def mode(self):
+        return self.__mode
+
+    # A funcao __len__() eh chamada quando usamos len(classe)
+    def __len__(self):
+        return self.__shape['v']
+
+    # A funcao __repr__() eh chamada quando usamos print(classe)
+    def __repr__(self):
+        s = 'Graph \"' + self.name + '\"\n'
+        s += '  {}\n'.format(self.shape)
+        s += '  '
+        s += np.array2string(self.__graph, prefix='  ')
+        return s
+
 
 
 # MAIN
 # -----------------------------------------------
 
-g = Graph('graphG.txt')
+g = Graph('exemplo.txt')
