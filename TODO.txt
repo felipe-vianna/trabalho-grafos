@@ -1,0 +1,33 @@
+legenda:
+  OK: finalizado
+  ++: finalizado parcialmente (ex: falta implementar c/ lista)
+
+1. Entrada / 3. Repressentação
+  [OK] ler como matriz
+  [  ] ler como lista/vetor
+
+2. Saída
+  [++] número de vértices
+  [++] número de arestas
+  [++] grau mínimo
+  [++] grau máximo
+  [++] grau médio
+  [++] mediana de grau
+  [  ] info componentes conexas
+
+4. Busca
+  [  ] largura
+  [  ] profundidade
+  [  ] gerar arvore
+  [  ]] imprimir arvore
+
+5. Distancias e diametros
+  [  ] distancia
+  [  ] diametro
+
+6. Componentes conexas
+  [  ] descobrir comp con
+  [  ] numero de comp con
+  [  ] tamanho das comp con (num vertices)
+  [  ] lista com os vertices das comp con
+  [  ] listar comp con de acordo com o tamanho (num vertices)
