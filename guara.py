@@ -164,4 +164,4 @@ class Graph:
 # MAIN
 # -----------------------------------------------
 
-g = Graph('exemplo.txt')
+# g = Graph('exemplo.txt')
