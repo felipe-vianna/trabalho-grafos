@@ -28,7 +28,13 @@ class Graph:
         # -----------------------------------------------
 
         self.__shape = {'v': 0,'e': 0} # dicionario com o numero de vertices e arestas
-        self.__graph = []
+        self.__graph = np.array(0)
+        self.__degrees = np.array(0)
+
+        self.__dg_min = 0
+        self.__dg_max = 0
+        self.__dg_avg = 0.0
+        self.__dg_median = 0.0
         
         # -----------------------------------------------
 
@@ -50,7 +56,8 @@ class Graph:
 
         self.__shape['v'] = int(lines[0]) # numero de vertices
 
-        self.__graph = np.zeros((self.__shape['v'],self.__shape['v']), dtype=np.int8) # inicializando a matriz com zeros (False)
+        self.__graph = np.zeros((self.__shape['v'],self.__shape['v']), dtype=np.uint8) # inicializando a matriz com zeros (False)
+        self.__degrees = np.zeros(self.__shape['v'], dtype=np.uint) # inicializando todos os graus dos vertices em zero
 
         self.__shape['e'] = 0
         for edge in lines[1:]: # cada linha representa uma aresta
@@ -60,11 +67,26 @@ class Graph:
             edge[0] = int(edge[0]) - 1 # [NOTE] consideramos que os indices dos vertices no arquivo texto iniciam sempre em 1
             edge[1] = int(edge[1]) - 1
 
-            self.__graph[ edge[0] ][ edge[1] ] = True
 
-            if not self.__graph[ edge[1] ][ edge[0] ]: # fazemos essa verificacao para o caso de alguma aresta estar repetida no arquivo texto
-                self.__graph[ edge[1] ][ edge[0] ] = True # so podemos colocar essa linha pois o grafo eh nao-direcionado
+            if not self.__graph[ edge[0] ][ edge[1] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
+                # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
+                self.__graph[ edge[0] ][ edge[1] ] = True
+                self.__graph[ edge[1] ][ edge[0] ] = True # podemos colocar essa linha pois o grafo eh nao-direcionado
                 self.__shape['e'] += 1
+
+                self.__degrees[ edge[0] ] += 1
+                self.__degrees[ edge[1] ] += 1
+
+        # v = 0
+        # self.__dg_max = self.__degrees[0]
+        # self.__dg_min = self.__degrees[0]
+        # for d in self.__degrees:
+        #     v += 1
+
+        #     self.__dg_avg += d
+
+        #     self.__dg_max = d if d > self.__dg_max
+        #     self.__dg_min = d if d < self.__dg_min    
 
         return self.__graph
 
@@ -77,6 +99,10 @@ class Graph:
         - https://www.tutorialsteacher.com/python/property-decorator
         - https://www.programiz.com/python-programming/property
     """
+
+    @property
+    def mode(self):
+        return self.__mode
 
     @property
     def graph(self):
@@ -95,8 +121,32 @@ class Graph:
         return self.__shape['e']
 
     @property
-    def mode(self):
-        return self.__mode
+    def degrees(self):
+        return self.__degrees
+    
+    @property
+    def dg_min(self):
+        if not self.__dg_min:
+            self.__dg_min = self.__degrees.min()
+        return self.__dg_min
+    
+    @property
+    def dg_max(self):
+        if not self.__dg_max:
+            self.__dg_max = self.__degrees.max()
+        return self.__dg_max
+
+    @property
+    def dg_avg(self):
+        if not self.__dg_avg:
+            self.__dg_avg = self.__degrees.mean()
+        return self.__dg_avg
+
+    @property
+    def dg_median(self):
+        if not self.__dg_median:
+            self.__dg_median = np.median(self.__degrees)
+        return self.__dg_median
 
     # A funcao __len__() eh chamada quando usamos len(classe)
     def __len__(self):
@@ -106,8 +156,7 @@ class Graph:
     def __repr__(self):
         s = 'Graph \"' + self.name + '\"\n'
         s += '  {}\n'.format(self.shape)
-        s += '  '
-        s += np.array2string(self.__graph, prefix='  ')
+        s += '  ' + np.array2string(self.__graph, prefix='  ')
         return s
 
 
