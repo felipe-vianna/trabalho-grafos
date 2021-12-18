@@ -5,8 +5,8 @@ class Graph:
     def __init__(self, filename, memory_mode='mtx'):
 
         # Verificando se o nome do arquivo passado eh uma string
-        if type(filename) != type(''):
-            print('Error: Graph expects a string with the path to the .txt that describes the graph.')
+        if (type(filename) != type('')) or (not filename):
+            print('Error: Graph expects a string with the path to the text file that describes the graph.')
             exit()
 
         # Verificando se o modo de armazenamento em memoria passado eh valido
@@ -58,6 +58,11 @@ class Graph:
 
         self.__graph = np.zeros((self.__shape['v'],self.__shape['v']), dtype=np.uint8) # inicializando a matriz com zeros (False)
         self.__degrees = np.zeros(self.__shape['v'], dtype=np.uint) # inicializando todos os graus dos vertices em zero
+
+        self.__dg_min = 0
+        self.__dg_max = 0
+        self.__dg_avg = 0.0
+        self.__dg_median = 0.0
 
         self.__shape['e'] = 0
         for edge in lines[1:]: # cada linha representa uma aresta
@@ -139,7 +144,7 @@ class Graph:
     @property
     def dg_avg(self):
         if not self.__dg_avg:
-            self.__dg_avg = self.__degrees.mean()
+            self.__dg_avg = 2 * self.__degrees.mean() # de acordo com definicao do slide (aula 3 - slide 10)
         return self.__dg_avg
 
     @property
@@ -161,7 +166,82 @@ class Graph:
 
 
 
+def breadth_search_as_mtx(graph, seed):
+    # undiscovered: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
+    #
+    undiscovered = np.ones(graph.n, dtype=np.int8)
+    undiscovered[seed] = False # iniciamos a descoberta dos vertices pela semente
+
+    # tree: array representando a arvore gerada. cada elemento contem uma dupla do tipo [pai, nivel]
+    #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
+    #
+    tree = np.ones( (graph.n, 2), dtype=int ) * (-1)
+
+    tree[seed][0] = seed # colocamos a raiz como pai de si mesma
+    tree[seed][1] = 0 # definimos o nivel da raiz como 0
+
+    # discovered: fila com os indices dos vertices que precisam ser investigados
+    #   |_ discovered[0]: o vertice a ser investigado no momento
+    #
+    discovered = np.array([seed])
+
+    while (len(discovered) != 0):
+        cur = discovered[0] # pegamos o indice do vertice sendo investigado
+        discovered = np.delete(discovered, 0) # retiramos ele da fila
+
+        for v in np.arange(graph.n):
+            if graph.graph[cur][v]: # existe uma aresta (cur,v), isto eh, eles sao vizinhos
+                if v != cur: # para evitar loops, ignoramos arestas do tipo (i,i)
+                    if undiscovered[v]: # v ainda nao foi investigado
+                        discovered = np.append(discovered, v) # adicionamos v a lista para ser investigado
+                        undiscovered[v] = False # indicamos que v ja foi descoberto
+                        
+                        tree[v][0] = cur # declaramos cur como o vertice pai de v na arvore
+                        tree[v][1] = tree[cur][1] + 1 # declaramos v como estando 1 nivel acima de cur
+
+    return tree
+
+
+def breadth_search(graph, seed=0, filename=None):
+    if type(graph) != Graph:
+        print('Error: graph must be of class Graph')
+        exit()
+
+
+    if graph.mode == 'mtx':
+        tree = breadth_search_as_mtx(graph, seed)
+    else:
+        print('breadth_search_as_lst not implemented yet')
+        exit()
+
+
+    if filename:
+        with open(filename,'w') as f:
+            for v in tree:
+                f.write('{},{}\n'.format(v[0], v[1]))
+
+    return tree
+
+def depth_search(graph, seed=0):
+    if type(graph) != Graph:
+        print('Error: graph must be of class Graph')
+        exit()
+
+    if graph.mode == 'mtx':
+        print('depth_search_as_mtx not implemented yet')
+        exit()
+    else:
+        print('depth_search_as_lst not implemented yet')
+        exit()
+
+bfs = breadth_search
+dfs = depth_search
+
+
 # MAIN
 # -----------------------------------------------
 
-# g = Graph('exemplo.txt')
+g = Graph('exemplo.g')
+seed = 0
+tree_filename = g.name + '_tree' + str(seed) + '.txt'
+breadth_search(g, seed, tree_filename)

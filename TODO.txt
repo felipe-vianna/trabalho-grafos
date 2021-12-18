@@ -2,7 +2,7 @@ legenda:
   OK: finalizado
   ++: finalizado parcialmente (ex: falta implementar c/ lista)
 
-1. Entrada / 3. Repressentação
+1. Entrada / 3. Representação
   [OK] ler como matriz
   [  ] ler como lista/vetor
 
@@ -16,10 +16,10 @@ legenda:
   [  ] info componentes conexas
 
 4. Busca
-  [  ] largura
+  [++] largura
   [  ] profundidade
-  [  ] gerar arvore
-  [  ]] imprimir arvore
+  [++] gerar arvore
+  [OK] imprimir arvore
 
 5. Distancias e diametros
   [  ] distancia
