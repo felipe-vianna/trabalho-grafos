@@ -2,21 +2,24 @@ legenda:
   OK: finalizado
   ++: finalizado parcialmente (ex: falta implementar c/ lista)
 
+OBS: Apos a leitura do arquivo txt, em todos os casos tratei os indices dos vertices iniciando em 0
+     (talvez precisemos mudar)
+
 1. Entrada / 3. Representação
   [OK] ler como matriz
-  [  ] ler como lista/vetor
+  [OK] ler como lista/vetor (pode ser que haja implementacao mais eficiente)
 
 2. Saída
-  [++] número de vértices
-  [++] número de arestas
-  [++] grau mínimo
-  [++] grau máximo
-  [++] grau médio
-  [++] mediana de grau
+  [OK] número de vértices
+  [OK] número de arestas
+  [OK] grau mínimo
+  [OK] grau máximo
+  [OK] grau médio
+  [OK] mediana de grau
   [  ] info componentes conexas
 
 4. Busca
-  [++] largura
+  [OK] largura
   [  ] profundidade
   [++] gerar arvore
   [OK] imprimir arvore
