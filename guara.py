@@ -326,9 +326,9 @@ def depth_search_as_mtx(graph, seed=0):
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
 
     while (len(stack) != 0):
-        current = stack[-1] # analisamos o ultimo elemento da fila
+        current = stack[-1] # analisamos o elemento no topo da pilha
 
-        stack = np.delete(stack, -1)
+        stack = np.delete(stack, -1) # retiramos o elemento do topo da pilha
         
         if not visited[current]:
             visited[current] = True
@@ -345,6 +345,42 @@ def depth_search_as_mtx(graph, seed=0):
 
     return tree
 
+
+def depth_search_as_lst(graph, seed=0):
+    visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
+
+    stack = np.array([seed])
+
+    # tree: array representando a arvore gerada. cada elemento tree[v] eh uma dupla do tipo [pai, nivel]
+    #   representando o pai e o nivel na arvore do noh v do grafo
+    #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
+    #
+    tree = np.ones( (graph.n, 2), dtype=int ) * (-1)
+
+    tree[seed][0] = seed # colocamos a raiz como pai de si mesma
+    tree[seed][1] = 0 # definimos o nivel da raiz como 0
+
+    while (len(stack) != 0):
+        current = stack[-1] # analisamos o elemento no topo da pilha
+
+        stack = np.delete(stack, -1) # retiramos o elemento do topo da pilha
+        
+        if not visited[current]:
+            visited[current] = True
+
+            # [REF] https://stackoverflow.com/questions/6771428/most-efficient-way-to-reverse-a-numpy-array
+            for neighbor in graph.graph[current][::-1]: # pegamos todos os elementos da lista usando step=-1
+                # seguindo o padrao da aula 5 (slide 18) percorremos os vertices em ordem descrescente
+                # desse modo os vizinhos de menor indice ficam sempre no topo da pilha, isto eh, sao analisados primeiro
+                if (not visited[neighbor]): # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
+                    stack = np.append(stack, neighbor) # adicionamos o vizinho na pilha
+
+                    tree[neighbor][0] = current # o pai do noh vert eh o no sendo analisado
+                    tree[neighbor][1] = tree[current][1] + 1 # o nivel do noh  vert eh um nivel acima do atual
+
+    return tree
+
+
 def depth_search(graph, seed=0, filename=None):
     if type(graph) != Graph:
         print('Error: graph must be of class Graph')
@@ -353,8 +389,7 @@ def depth_search(graph, seed=0, filename=None):
     if graph.mode == 'mtx':
         tree = depth_search_as_mtx(graph,seed)
     else:
-        print('depth_search_as_lst not implemented yet')
-        exit()
+        tree = depth_search_as_lst(graph,seed)
 
     if filename:
         with open(filename,'w') as f:
@@ -372,11 +407,11 @@ dfs = depth_search
 
 gm = Graph('exemplo.g', 'mtx')
 gl = Graph('exemplo.g', 'lst')
-seed = 0
-tree_filename = None
+# seed = 0
+# tree_filename = None
 # tree_filename = g.name + '_tree' + str(seed) + '.txt'
-tm_bfs = breadth_search(gm, seed, tree_filename)
-tl_bfs = breadth_search(gl, seed, tree_filename)
+# tm_bfs = breadth_search(gm, seed, tree_filename)
+# tl_bfs = breadth_search(gl, seed, tree_filename)
 
-tm_dfs = depth_search(gm, seed, tree_filename)
+# tm_dfs = depth_search(gm, seed, tree_filename)
 # tl_dfs = depth_search(gl, seed, tree_filename)

@@ -20,8 +20,8 @@ OBS: Apos a leitura do arquivo txt, em todos os casos tratei os indices dos vert
 
 4. Busca
   [OK] largura
-  [++] profundidade
-  [++] gerar arvore
+  [OK] profundidade
+  [OK] gerar arvore
   [OK] imprimir arvore
 
 5. Distancias e diametros
