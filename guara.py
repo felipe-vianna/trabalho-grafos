@@ -290,9 +290,9 @@ def breadth_search_as_lst(graph, seed=0):
 
 
 def breadth_search(graph, seed=0, filename=None):
-    if type(graph) != Graph:
-        print('Error: graph must be of class Graph')
-        exit()
+    # if type(graph) != Graph:
+    #     print('Error: graph must be of class Graph')
+    #     exit()
 
 
     if graph.mode == 'mtx':
@@ -382,9 +382,9 @@ def depth_search_as_lst(graph, seed=0):
 
 
 def depth_search(graph, seed=0, filename=None):
-    if type(graph) != Graph:
-        print('Error: graph must be of class Graph')
-        exit()
+    # if type(graph) != Graph:
+    #     print('Error: graph must be of class Graph')
+    #     exit()
 
     if graph.mode == 'mtx':
         tree = depth_search_as_mtx(graph,seed)
@@ -401,17 +401,98 @@ def depth_search(graph, seed=0, filename=None):
 bfs = breadth_search
 dfs = depth_search
 
+def DFSUtil(graph, temp, v, visited):
+    visited[v] = True
+ 
+    temp.append(v)
+ 
+    for i in graph[v]:
+        if visited[i] == False:
+            temp = DFSUtil(graph, temp, i, visited)
+    return temp
+
+def connectedComponents(graph, vertices):
+        visited = []
+        cc = []
+        for i in range(vertices):
+            visited.append(False)
+        for v in range(vertices):
+            if visited[v] == False:
+                temp = []
+                cc.append(DFSUtil(graph, temp, v, visited))
+        return cc
+
+def distance(graph, seed, target, v, pred, dist):
+	queue = []
+	visited = [False for i in range(v)]
+	for i in range(v):
+		dist[i] = 1000000
+		pred[i] = -1
+
+	visited[seed] = True
+	dist[seed] = 0
+	queue.append(seed)
+
+	while (len(queue) != 0):
+		u = queue[0]
+		queue.pop(0)
+		for i in range(len(graph[u])):
+		
+			if (visited[graph[u][i]] == False):
+				visited[graph[u][i]] = True
+				dist[graph[u][i]] = dist[u] + 1
+				pred[graph[u][i]] = u
+				queue.append(graph[u][i])
+
+				if (graph[u][i] == target):
+					return True
+
+	return False
+
+def shortestDistance(adj, s, dest, v):
+	pred=[0 for i in range(v)]
+	dist=[0 for i in range(v)]
+	if (distance(adj, s, dest, v, pred, dist) == False):
+		return -1
+	path = []
+	crawl = dest
+	crawl = dest
+	path.append(crawl)
+	
+	while (pred[crawl] != -1):
+		path.append(pred[crawl])
+		crawl = pred[crawl]
+	return dist[dest]
+		
+def diameter(graph):
+    diameter = 0
+    for v in range(len(graph)):
+        for v2 in range(len(graph)):
+            shortest = shortestDistance(graph, v, v2, len(graph))
+            if shortest > diameter:
+                diameter = shortest
+    return diameter   
+
+def writeOnFile(filename, info):
+    if filename:
+        with open(filename,'w') as f:
+            for v in info:
+                f.write('{}: {}\n'.format(v[0], v[1]))
 
 # MAIN
 # -----------------------------------------------
 
-gm = Graph('exemplo.g', 'mtx')
-gl = Graph('exemplo.g', 'lst')
-# seed = 0
-# tree_filename = None
-# tree_filename = g.name + '_tree' + str(seed) + '.txt'
-# tm_bfs = breadth_search(gm, seed, tree_filename)
-# tl_bfs = breadth_search(gl, seed, tree_filename)
+tipo_de_grafo = input("Insira o tipo de grafo (0 para matriz, 1 para lista): ")
+g = Graph('exemplo.g', 'mtx') if tipo_de_grafo == 0 else Graph('exemplo.g', 'lst')
+origem = input("Insira o vertice inicial: ")
+destino = input("Insira o vertice destino para calcular a distancia: ")
 
-# tm_dfs = depth_search(gm, seed, tree_filename)
-# tl_dfs = depth_search(gl, seed, tree_filename)
+distance_seed_target = shortestDistance(g.graph, origem,destino, len(g.graph))
+diameter_graph = diameter(g.graph)  
+cc = connectedComponents(g.graph,g.shape['v'])
+qtd_cc = len(cc)
+qtd_vertices_cc = {}
+for compconex in cc:
+    compconexT = tuple(compconex)
+    qtd_vertices_cc[compconexT] = int(len(compconex))
+writeOnFile('saida.txt',[["Grafo", g.graph],["BFS", bfs(g, origem)],["DFS", dfs(g, origem)],["Numero de vertices", g.shape['v']],["Numero de arestas", g.shape['e']],["Grau minimo", g.dg_min],["Grau maximo", g.dg_max],["Grau medio", g.dg_avg],["Mediana de grau", g.dg_median],["Componentes conexas", cc], ["Quantidade de componentes conexos",qtd_cc],["Quantidade de vertices por componente conexa",qtd_vertices_cc], ["Diametro do grafo", diameter_graph], ["Distancia entre origem e destino", distance_seed_target]])

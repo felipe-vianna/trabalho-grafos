@@ -16,7 +16,7 @@ OBS: Apos a leitura do arquivo txt, em todos os casos tratei os indices dos vert
   [OK] grau máximo
   [OK] grau médio
   [OK] mediana de grau
-  [  ] info componentes conexas
+  [OK] info componentes conexas
 
 4. Busca
   [OK] largura
@@ -25,12 +25,12 @@ OBS: Apos a leitura do arquivo txt, em todos os casos tratei os indices dos vert
   [OK] imprimir arvore
 
 5. Distancias e diametros
-  [  ] distancia
-  [  ] diametro
+  [OK] distancia
+  [OK] diametro
 
 6. Componentes conexas
-  [  ] descobrir comp con
-  [  ] numero de comp con
-  [  ] tamanho das comp con (num vertices)
-  [  ] lista com os vertices das comp con
-  [  ] listar comp con de acordo com o tamanho (num vertices)
+  [OK] descobrir comp con
+  [OK] numero de comp con
+  [OK] tamanho das comp con (num vertices)
+  [OK] lista com os vertices das comp con
+  [OK] listar comp con de acordo com o tamanho (num vertices)
