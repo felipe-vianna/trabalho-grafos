@@ -493,6 +493,9 @@ cc = connectedComponents(g.graph,g.shape['v'])
 qtd_cc = len(cc)
 qtd_vertices_cc = {}
 for compconex in cc:
-    compconexT = tuple(compconex)
+    if len(compconex) > 1:
+        compconexT = tuple(compconex)
+    else:
+        compconexT = compconex[0]
     qtd_vertices_cc[compconexT] = int(len(compconex))
 writeOnFile('saida.txt',[["Grafo", g.graph],["BFS", bfs(g, origem)],["DFS", dfs(g, origem)],["Numero de vertices", g.shape['v']],["Numero de arestas", g.shape['e']],["Grau minimo", g.dg_min],["Grau maximo", g.dg_max],["Grau medio", g.dg_avg],["Mediana de grau", g.dg_median],["Componentes conexas", cc], ["Quantidade de componentes conexos",qtd_cc],["Quantidade de vertices por componente conexa",qtd_vertices_cc], ["Diametro do grafo", diameter_graph], ["Distancia entre origem e destino", distance_seed_target]])
