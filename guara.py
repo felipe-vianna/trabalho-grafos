@@ -226,7 +226,7 @@ def breadth_search_as_mtx(graph, seed=0):
     #   representando o pai e o nivel na arvore do noh v do grafo
     #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
     #
-    tree = np.ones( (graph.n, 2), dtype=int ) * (-1)
+    tree = np.ones( (graph.n, 2), dtype=int32 ) * (-1)
 
     tree[seed][0] = seed # colocamos a raiz como pai de si mesma
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
@@ -244,7 +244,7 @@ def breadth_search_as_mtx(graph, seed=0):
             if graph.graph[current][vert]: # existe uma aresta (current,vert), isto eh, eles sao vizinhos
                 if vert != current: # para evitar loops, ignoramos arestas do tipo (i,i)
                     if not visited[vert]: # vert ainda nao foi investigado
-                        queue = np.append(queue, vert) # adicionamos vert a fila para ser investigado
+                        queue = np.append(queue, np.int32(vert)) # adicionamos vert a fila para ser investigado
                         visited[vert] = True # indicamos que vert ja foi descoberto
                         
                         tree[vert][0] = current # declaramos current como o vertice pai de vert na arvore
@@ -263,7 +263,7 @@ def breadth_search_as_lst(graph, seed=0):
     #   representando o pai e o nivel na arvore do noh v do grafo
     #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
     #
-    tree = np.ones( (graph.n, 2), dtype=int ) * (-1)
+    tree = np.ones( (graph.n, 2), dtype=np.int32 ) * (-1)
 
     tree[seed][0] = seed # colocamos a raiz como pai de si mesma
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
@@ -280,7 +280,7 @@ def breadth_search_as_lst(graph, seed=0):
         for neighbor in graph.graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
             if neighbor != current: # para evitar loops, ignoramos arestas do tipo (i,i)
                 if not visited[neighbor]: # o vizinho ainda nao foi investigado
-                    queue = np.append(queue, neighbor) # adicionamos o vizinho a lista para ser investigado
+                    queue = np.append(queue, np.int32(neighbor)) # adicionamos o vizinho a lista para ser investigado
                     visited[neighbor] = True # indicamos que o vizinho ja foi descoberto
         
                     tree[neighbor][0] = current # declaramos cur como o vertice pai de neighbor na arvore
@@ -320,7 +320,7 @@ def depth_search_as_mtx(graph, seed=0):
     #   representando o pai e o nivel na arvore do noh v do grafo
     #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
     #
-    tree = np.ones( (graph.n, 2), dtype=int ) * (-1)
+    tree = np.ones( (graph.n, 2), dtype= np.int32 ) * (-1)
 
     tree[seed][0] = seed # colocamos a raiz como pai de si mesma
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
@@ -339,7 +339,7 @@ def depth_search_as_mtx(graph, seed=0):
                 # desse modo os vizinhos de menor indice ficam sempre no topo da pilha, isto eh, sao analisados primeiro
                 if (graph.graph[current][vert]): # se os dois forem vizinhos
                     if (not visited[vert]): # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
-                        stack = np.append(stack, vert) # adicionamos o vizinho na pilha
+                        stack = np.append(stack, np.int32(vert)) # adicionamos o vizinho na pilha
 
                         tree[vert][0] = current # o pai do noh vert eh o no sendo analisado
                         tree[vert][1] = tree[current][1] + 1 # o nivel do noh  vert eh um nivel acima do atual
@@ -356,7 +356,7 @@ def depth_search_as_lst(graph, seed=0):
     #   representando o pai e o nivel na arvore do noh v do grafo
     #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
     #
-    tree = np.ones( (graph.n, 2), dtype=int ) * (-1)
+    tree = np.ones( (graph.n, 2), dtype= np.int32 ) * (-1)
 
     tree[seed][0] = seed # colocamos a raiz como pai de si mesma
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
@@ -374,7 +374,7 @@ def depth_search_as_lst(graph, seed=0):
                 # seguindo o padrao da aula 5 (slide 18) percorremos os vertices em ordem descrescente
                 # desse modo os vizinhos de menor indice ficam sempre no topo da pilha, isto eh, sao analisados primeiro
                 if (not visited[neighbor]): # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
-                    stack = np.append(stack, neighbor) # adicionamos o vizinho na pilha
+                    stack = np.append(stack, np.int32(neighbor)) # adicionamos o vizinho na pilha
 
                     tree[neighbor][0] = current # o pai do noh vert eh o no sendo analisado
                     tree[neighbor][1] = tree[current][1] + 1 # o nivel do noh  vert eh um nivel acima do atual
@@ -482,7 +482,7 @@ def writeOnFile(filename, info):
 
 # MAIN
 # -----------------------------------------------
-
+"""
 tipo_de_grafo = input("Insira o tipo de grafo (0 para matriz, 1 para lista): ")
 g = Graph('exemplo.g', 'mtx') if tipo_de_grafo == 0 else Graph('exemplo.g', 'lst')
 origem = input("Insira o vertice inicial: ")
@@ -500,3 +500,4 @@ for compconex in cc:
         compconexT = compconex[0]
     qtd_vertices_cc[compconexT] = int(len(compconex))
 writeOnFile('saida.txt',[["Grafo", g.graph],["BFS", bfs(g, origem)],["DFS", dfs(g, origem)],["Numero de vertices", g.shape['v']],["Numero de arestas", g.shape['e']],["Grau minimo", g.dg_min],["Grau maximo", g.dg_max],["Grau medio", g.dg_avg],["Mediana de grau", g.dg_median],["Componentes conexas", cc], ["Quantidade de componentes conexos",qtd_cc],["Quantidade de vertices por componente conexa",qtd_vertices_cc], ["Diametro do grafo", diameter_graph], ["Distancia entre origem e destino", distance_seed_target]])
+"""
