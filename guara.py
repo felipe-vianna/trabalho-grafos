@@ -217,10 +217,10 @@ class Graph:
 
 
 def breadth_search_as_mtx(graph, seed=0):
-    # undiscovered: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
+    # visited: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
     #
-    undiscovered = np.ones(graph.n, dtype=np.int8)
-    undiscovered[seed] = False # iniciamos a descoberta dos vertices pela semente
+    visited = np.zeros(graph.n, dtype=np.int8)
+    visited[seed] = True # iniciamos a descoberta dos vertices pela semente
 
     # tree: array representando a arvore gerada. cada elemento contem uma dupla do tipo [pai, nivel]
     #   representando o pai e o nivel na arvore do noh v do grafo
@@ -231,33 +231,33 @@ def breadth_search_as_mtx(graph, seed=0):
     tree[seed][0] = seed # colocamos a raiz como pai de si mesma
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
 
-    # discovered: fila com os indices dos vertices que precisam ser investigados
-    #   |_ discovered[0]: o vertice a ser investigado no momento
+    # queue: fila com os indices dos vertices que precisam ser investigados
+    #   |_ queue[0]: o vertice a ser investigado no momento
     #
-    discovered = np.array([seed])
+    queue = np.array([seed])
 
-    while (len(discovered) != 0):
-        cur = discovered[0] # pegamos o indice do vertice sendo investigado
-        discovered = np.delete(discovered, 0) # retiramos ele da fila
+    while (len(queue) != 0):
+        current = queue[0] # pegamos o indice do vertice sendo investigado
+        queue = queue[1:] # retiramos ele da fila
 
-        for v in range(graph.n):
-            if graph.graph[cur][v]: # existe uma aresta (cur,v), isto eh, eles sao vizinhos
-                if v != cur: # para evitar loops, ignoramos arestas do tipo (i,i)
-                    if undiscovered[v]: # v ainda nao foi investigado
-                        discovered = np.append(discovered, v) # adicionamos v a lista para ser investigado
-                        undiscovered[v] = False # indicamos que v ja foi descoberto
+        for vert in range(graph.n): # iremos percorrer todos os vertices para ver se sao vizinhos do atual
+            if graph.graph[current][vert]: # existe uma aresta (current,vert), isto eh, eles sao vizinhos
+                if vert != current: # para evitar loops, ignoramos arestas do tipo (i,i)
+                    if not visited[vert]: # vert ainda nao foi investigado
+                        queue = np.append(queue, vert) # adicionamos vert a fila para ser investigado
+                        visited[vert] = True # indicamos que vert ja foi descoberto
                         
-                        tree[v][0] = cur # declaramos cur como o vertice pai de v na arvore
-                        tree[v][1] = tree[cur][1] + 1 # declaramos v como estando 1 nivel acima de cur
+                        tree[vert][0] = current # declaramos current como o vertice pai de vert na arvore
+                        tree[vert][1] = tree[current][1] + 1 # declaramos vert como estando 1 nivel acima de current
 
     return tree
 
 
 def breadth_search_as_lst(graph, seed=0):
-    # undiscovered: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
+    # visited: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
     #
-    undiscovered = np.ones(graph.n, dtype=np.int8)
-    undiscovered[seed] = False # iniciamos a descoberta dos vertices pela semente
+    visited = np.zeros(graph.n, dtype=np.int8)
+    visited[seed] = False # iniciamos a descoberta dos vertices pela semente
 
     # tree: array representando a arvore gerada. cada elemento contem uma dupla do tipo [pai, nivel]
     #   representando o pai e o nivel na arvore do noh v do grafo
@@ -268,23 +268,23 @@ def breadth_search_as_lst(graph, seed=0):
     tree[seed][0] = seed # colocamos a raiz como pai de si mesma
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
 
-    # discovered: fila com os indices dos vertices que precisam ser investigados
-    #   |_ discovered[0]: o vertice a ser investigado no momento
+    # queue: fila com os indices dos vertices que precisam ser investigados
+    #   |_ queue[0]: o vertice a ser investigado no momento
     #
-    discovered = np.array([seed])
+    queue = np.array([seed])
 
-    while (len(discovered) != 0):
-        cur = discovered[0] # pegamos o indice do vertice sendo investigado
-        discovered = np.delete(discovered, 0) # retiramos ele da fila
+    while (len(queue) != 0):
+        current = queue[0] # pegamos o indice do vertice sendo investigado
+        queue = queue[1:] # retiramos ele da fila
 
-        for neighbor in graph.graph[cur]: # verificamos todos os vizinhos do vertice sendo investigado
-            if neighbor != cur: # para evitar loops, ignoramos arestas do tipo (i,i)
-                if undiscovered[neighbor]: # o vizinho ainda nao foi investigado
-                    discovered = np.append(discovered, neighbor) # adicionamos o vizinho a lista para ser investigado
-                    undiscovered[neighbor] = False # indicamos que o vizinho ja foi descoberto
+        for neighbor in graph.graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
+            if neighbor != current: # para evitar loops, ignoramos arestas do tipo (i,i)
+                if not visited[neighbor]: # o vizinho ainda nao foi investigado
+                    queue = np.append(queue, neighbor) # adicionamos o vizinho a lista para ser investigado
+                    visited[neighbor] = True # indicamos que o vizinho ja foi descoberto
         
-                    tree[neighbor][0] = cur # declaramos cur como o vertice pai de neighbor na arvore
-                    tree[neighbor][1] = tree[cur][1] + 1 # declaramos neighbor como estando 1 nivel acima de cur
+                    tree[neighbor][0] = current # declaramos cur como o vertice pai de neighbor na arvore
+                    tree[neighbor][1] = tree[current][1] + 1 # declaramos neighbor como estando 1 nivel acima de cur
 
     return tree
 
@@ -333,7 +333,8 @@ def depth_search_as_mtx(graph, seed=0):
         if not visited[current]:
             visited[current] = True
 
-            for vert in range((graph.n - 1), 0, -1):
+            # [REF] https://stackoverflow.com/questions/6771428/most-efficient-way-to-reverse-a-numpy-array
+            for vert in graph.graph[current][::-1]: # pegamos todos os elementos da lista usando step=-1
                 # seguindo o padrao da aula 5 (slide 18) percorremos os vertices em ordem descrescente
                 # desse modo os vizinhos de menor indice ficam sempre no topo da pilha, isto eh, sao analisados primeiro
                 if (graph.graph[current][vert]): # se os dois forem vizinhos
