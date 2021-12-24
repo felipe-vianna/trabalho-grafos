@@ -1,5 +1,7 @@
 import os
 import numpy as np
+import time
+from random import randrange
 
 class Graph:
     def __init__(self, filename, memory_mode='mtx'):
@@ -482,20 +484,42 @@ def writeOnFile(filename, info):
 # MAIN
 # -----------------------------------------------
 
-tipo_de_grafo = input("Insira o tipo de grafo (0 para matriz, 1 para lista): ")
+# tipo_de_grafo = input("Insira o tipo de grafo (0 para matriz, 1 para lista): ")
+tipo_de_grafo = 1
 g = Graph('exemplo.g', 'mtx') if tipo_de_grafo == 0 else Graph('exemplo.g', 'lst')
-origem = input("Insira o vertice inicial: ")
-destino = input("Insira o vertice destino para calcular a distancia: ")
-
-distance_seed_target = shortestDistance(g.graph, origem,destino, len(g.graph))
-diameter_graph = diameter(g.graph)  
-cc = connectedComponents(g.graph,g.shape['v'])
-qtd_cc = len(cc)
-qtd_vertices_cc = {}
-for compconex in cc:
-    if len(compconex) > 1:
-        compconexT = tuple(compconex)
-    else:
-        compconexT = compconex[0]
-    qtd_vertices_cc[compconexT] = int(len(compconex))
-writeOnFile('saida.txt',[["Grafo", g.graph],["BFS", bfs(g, origem)],["DFS", dfs(g, origem)],["Numero de vertices", g.shape['v']],["Numero de arestas", g.shape['e']],["Grau minimo", g.dg_min],["Grau maximo", g.dg_max],["Grau medio", g.dg_avg],["Mediana de grau", g.dg_median],["Componentes conexas", cc], ["Quantidade de componentes conexos",qtd_cc],["Quantidade de vertices por componente conexa",qtd_vertices_cc], ["Diametro do grafo", diameter_graph], ["Distancia entre origem e destino", distance_seed_target]])
+# origem = input("Insira o vertice inicial: ")
+# destino = input("Insira o vertice destino para calcular a distancia: ")
+start_time = time.time()
+times = []
+c = 0
+for x in range(1000):
+    c+=1
+    print("Executando a {}a vez".format(c))
+    origem = randrange(9989)
+    dfs(g, origem)
+    execution_time = time.time() - start_time
+    times.append(execution_time)
+print("Tempo de execucao: {}".format(sum(times)/len(times)))
+os.system('say "thank you, next"')
+# distance_seed_target = shortestDistance(g.graph, origem,destino, len(g.graph))
+# diameter_graph = diameter(g.graph) 
+# diameter_graph = 0
+# distance_seed_target = 0
+# cc = connectedComponents(g.graph,g.shape['v'])
+# qtd_cc = len(cc)
+# qtd_vertices_cc = {}
+# for compconex in cc:
+#     if len(compconex) > 1:
+#         compconexT = tuple(compconex)
+#     else:
+#         compconexT = compconex[0]
+#     qtd_vertices_cc[compconexT] = int(len(compconex))
+#     maior_cc = max(qtd_vertices_cc, key=qtd_vertices_cc.get)
+#     menor_cc = min(qtd_vertices_cc, key=qtd_vertices_cc.get)
+# print("Maior: ", len(maior_cc))
+# print("Menor: ", 1 if type(menor_cc) == int else len(menor_cc))
+# print("Quantidade de componentes conexas: {}".format(qtd_cc))
+# print("Distancia: {}".format(distance_seed_target))
+# print("Diametro: {}".format(diameter_graph))
+# writeOnFile('saida.txt',[["Grafo", g.graph],["BFS", bfs(g, origem)],["DFS", dfs(g, origem)],["Numero de vertices", g.shape['v']],["Numero de arestas", g.shape['e']],["Grau minimo", g.dg_min],["Grau maximo", g.dg_max],["Grau medio", g.dg_avg],["Mediana de grau", g.dg_median],["Componentes conexas", cc], ["Quantidade de componentes conexos",qtd_cc],["Quantidade de vertices por componente conexa",qtd_vertices_cc], ["Diametro do grafo", diameter_graph], ["Distancia entre origem e destino", distance_seed_target]])
+# os.system('say "thank you, next"')
