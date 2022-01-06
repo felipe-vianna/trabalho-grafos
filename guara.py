@@ -5,20 +5,18 @@ class Graph:
     def __init__(self, filename, memory_mode='mtx'):
 
         # Verificando se o nome do arquivo passado eh uma string
-        if (type(filename) != type('')) or (not filename):
-            print('Error: Graph expects a string with the path to the text file that describes the graph.')
-            exit()
+        if (type(filename) != type('')):
+            raise TypeError('Graph expects a string with the path to the text file that describes the graph')
+
 
         # Verificando se o modo de armazenamento em memoria passado eh valido
         self.__mode = memory_mode.lower()
         if (self.__mode != 'mtx') and (self.__mode != 'lst'):
-            print('Error: memory mode must be either \"mtx\" (matrix) or \"lst\" (list)')
-            exit()
+            raise ValueError('memory_mode must be either \"mtx\" (matrix) or \"lst\" (list)')
 
         # Verificando se o arquivo passado existe
         if not os.path.isfile(filename):
-            print("Error: file not found.")
-            print("--\t"+filename)
+            raise FileNotFoundError(f"file not found \"{filename}\"")
 
         # -----------------------------------------------
 
@@ -80,18 +78,7 @@ class Graph:
                 self.__shape['e'] += 1
 
                 self.__degrees[ edge[0] ] += 1
-                self.__degrees[ edge[1] ] += 1
-
-        # v = 0
-        # self.__dg_max = self.__degrees[0]
-        # self.__dg_min = self.__degrees[0]
-        # for d in self.__degrees:
-        #     v += 1
-
-        #     self.__dg_avg += d
-
-        #     self.__dg_max = d if d > self.__dg_max
-        #     self.__dg_min = d if d < self.__dg_min    
+                self.__degrees[ edge[1] ] += 1  
 
         return self.__graph
 
@@ -221,7 +208,7 @@ class Graph:
 # -----------------------------------------------
 
 
-def breadth_search_as_mtx(graph, seed=0):
+def breadth_search_mtx(graph, seed=0):
     # visited[v]: flag booleana indicando se o vertice v ja foi investigado
     #
     visited = np.zeros(len(graph), dtype=np.int8)
@@ -232,8 +219,7 @@ def breadth_search_as_mtx(graph, seed=0):
     #
     distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
-    #    vertice na arvore gerada pela busca
+    # parent[v]: o indice do vertice pai de v na arvore gerada pela busca
     #
     parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
 
@@ -267,7 +253,7 @@ def breadth_search_as_mtx(graph, seed=0):
 # -----------------------------------------------
 
 
-def breadth_search_as_lst(graph, seed=0):
+def breadth_search_lst(graph, seed=0):
     # visited[v]: flag booleana indicando se o vertice v ja foi investigado
     #
     visited = np.zeros(len(graph), dtype=np.int8)
@@ -278,8 +264,7 @@ def breadth_search_as_lst(graph, seed=0):
     #
     distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
-    #    vertice na arvore gerada pela busca
+    # parent[v]: o indice do vertice pai de v na arvore gerada pela busca
     #
     parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
 
@@ -309,7 +294,7 @@ def breadth_search_as_lst(graph, seed=0):
 # -----------------------------------------------
 
 
-def depth_search_as_mtx(graph, seed=0):
+def depth_search_mtx(graph, seed=0):
     # visited[v]: flag booleana indicando se o vertice v ja foi investigado
     #
     visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
@@ -319,8 +304,7 @@ def depth_search_as_mtx(graph, seed=0):
     #
     distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
-    #    vertice na arvore gerada pela busca
+    # parent[v]: o indice do vertice pai de v na arvore gerada pela busca
     #
     parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
 
@@ -357,7 +341,7 @@ def depth_search_as_mtx(graph, seed=0):
 # -----------------------------------------------
 
 
-def depth_search_as_lst(graph, seed=0):
+def depth_search_lst(graph, seed=0):
     # visited[v]: flag booleana indicando se o vertice v ja foi investigado
     #
     visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
@@ -367,8 +351,7 @@ def depth_search_as_lst(graph, seed=0):
     #
     distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
-    #    vertice na arvore gerada pela busca
+    # parent[v]: o indice do vertice pai de v na arvore gerada pela busca
     #
     parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
 
@@ -406,15 +389,14 @@ def depth_search_as_lst(graph, seed=0):
 
 
 def breadth_search(graph, seed=0, savefile=None):
-    # if type(graph) != Graph:
-    #     print('Error: graph must be of class Graph')
-    #     exit()
+    if type(graph) != Graph:
+        raise TypeError('graph must be instance of class Graph')
 
 
     if graph.mode == 'mtx':
-        distance, parent = breadth_search_as_mtx(graph, seed)
+        distance, parent = breadth_search_mtx(graph, seed)
     else:
-        distance, parent = breadth_search_as_lst(graph, seed)
+        distance, parent = breadth_search_lst(graph, seed)
 
 
     if savefile:
@@ -428,14 +410,13 @@ def breadth_search(graph, seed=0, savefile=None):
 
 
 def depth_search(graph, seed=0, savefile=None):
-    # if type(graph) != Graph:
-    #     print('Error: graph must be of class Graph')
-    #     exit()
+    if type(graph) != Graph:
+        raise TypeError('graph must be instance of class Graph')
 
     if graph.mode == 'mtx':
-        distance, parent = depth_search_as_mtx(graph,seed)
+        distance, parent = depth_search_mtx(graph,seed)
     else:
-        distance, parent = depth_search_as_lst(graph,seed)
+        distance, parent = depth_search_lst(graph,seed)
 
     if savefile:
         with open(savefile,'w') as f:
@@ -473,32 +454,128 @@ def connectedComponents(graph, vertices):
                 cc.append(DFSUtil(graph, temp, v, visited))
         return cc
 
-def distance(graph, seed, target, v, pred, dist):
-	queue = []
-	visited = [False for i in range(v)]
-	for i in range(v):
-		dist[i] = 1000000
-		pred[i] = -1
+# -----------------------------------------------
 
-	visited[seed] = True
-	dist[seed] = 0
-	queue.append(seed)
 
-	while (len(queue) != 0):
-		u = queue[0]
-		queue.pop(0)
-		for i in range(len(graph[u])):
+def distance_mtx(graph, seed, target):
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
+    #
+    visited = np.zeros(len(graph), dtype=np.int8)
+    visited[seed] = True # iniciamos a descoberta dos vertices pela semente
+
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    #
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
+
+    # [NOTE] Se um vertice terminar com distance[v] == -1, significa que ele nao esta conectado a raiz
+
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+
+    # queue: fila com os indices dos vertices que precisam ser investigados
+    #   |_ queue[0]: o vertice a ser investigado no momento
+    #
+    queue = [seed]
+
+    while (len(queue) != 0):
+        current = queue[0] # pegamos o indice do vertice sendo investigado
+        queue.pop(0) # retiramos ele da fila
+
+        for vert in range(len(graph)): # iremos percorrer todos os vertices para ver se sao vizinhos do atual
+            if graph[current][vert]: # existe uma aresta (current,vert), isto eh, eles sao vizinhos
+                if vert != current: # para evitar loops, ignoramos arestas do tipo (i,i)
+                    if not visited[vert]: # vert ainda nao foi investigado
+                        queue.append(vert) # adicionamos vert a fila para ser investigado
+                        visited[vert] = True # indicamos que vert ja foi descoberto
+                        
+                        distance[vert] = distance[current] + 1 # declaramos vert como estando 1 nivel acima de current
+
+                        if vert == target:
+                            return distance[target]
+
+    return distance[target]
+
+# -----------------------------------------------
+
+
+def distance_lst(graph, seed, target):
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
+    #
+    visited = np.zeros(len(graph), dtype=np.int8)
+    visited[seed] = True # iniciamos a descoberta dos vertices pela semente
+
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    #
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
+
+    # [NOTE] Se um vertice terminar com distance[v] == -1, significa que ele nao esta conectado a raiz
+
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+
+    # queue: fila com os indices dos vertices que precisam ser investigados
+    #   |_ queue[0]: o vertice a ser investigado no momento
+    #
+    queue = [seed]
+
+    while (len(queue) != 0):
+        current = queue[0] # pegamos o indice do vertice sendo investigado
+        queue.pop(0) # retiramos ele da fila
+
+        for neighbor in graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
+            if neighbor != current: # para evitar loops, ignoramos arestas do tipo (i,i)
+                if not visited[neighbor]: # o vizinho ainda nao foi investigado
+                    queue.append(neighbor) # adicionamos o vizinho a lista para ser investigado
+                    visited[neighbor] = True # indicamos que o vizinho ja foi descoberto
+        
+                    distance[neighbor] = distance[current] + 1 # declaramos neighbor como estando 1 nivel acima de cur
+
+                    if neighbor == target:
+                        return distance[target]
+
+    return distance[target]
+
+# -----------------------------------------------
+
+
+def distance(graph, seed, target):
+    if type(graph) != Graph:
+        raise TypeError('graph must be instance of class Graph')
+
+    if graph.mode =='mtx':
+        return distance_mtx(graph, seed, target)
+    else:
+        return distance_lst(graph, seed, target)
+
+# -----------------------------------------------
+
+
+# def distance(graph, seed, target, v, pred, dist):
+# 	queue = []
+# 	visited = [False for i in range(v)]
+# 	for i in range(v):
+# 		dist[i] = 1000000
+# 		pred[i] = -1
+
+# 	visited[seed] = True
+# 	dist[seed] = 0
+# 	queue.append(seed)
+
+# 	while (len(queue) != 0):
+# 		u = queue[0]
+# 		queue.pop(0)
+# 		for i in range(len(graph[u])):
 		
-			if (visited[graph[u][i]] == False):
-				visited[graph[u][i]] = True
-				dist[graph[u][i]] = dist[u] + 1
-				pred[graph[u][i]] = u
-				queue.append(graph[u][i])
+# 			if (visited[graph[u][i]] == False):
+# 				visited[graph[u][i]] = True
+# 				dist[graph[u][i]] = dist[u] + 1
+# 				pred[graph[u][i]] = u
+# 				queue.append(graph[u][i])
 
-				if (graph[u][i] == target):
-					return True
+# 				if (graph[u][i] == target):
+# 					return True
 
-	return False
+# 	return False
 
 def shortestDistance(adj, s, dest, v):
 	pred=[0 for i in range(v)]
