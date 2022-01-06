@@ -550,62 +550,30 @@ def distance(graph, seed, target):
 # -----------------------------------------------
 
 
-# def distance(graph, seed, target, v, pred, dist):
-# 	queue = []
-# 	visited = [False for i in range(v)]
-# 	for i in range(v):
-# 		dist[i] = 1000000
-# 		pred[i] = -1
-
-# 	visited[seed] = True
-# 	dist[seed] = 0
-# 	queue.append(seed)
-
-# 	while (len(queue) != 0):
-# 		u = queue[0]
-# 		queue.pop(0)
-# 		for i in range(len(graph[u])):
-		
-# 			if (visited[graph[u][i]] == False):
-# 				visited[graph[u][i]] = True
-# 				dist[graph[u][i]] = dist[u] + 1
-# 				pred[graph[u][i]] = u
-# 				queue.append(graph[u][i])
-
-# 				if (graph[u][i] == target):
-# 					return True
-
-# 	return False
-
-def shortestDistance(adj, s, dest, v):
-	pred=[0 for i in range(v)]
-	dist=[0 for i in range(v)]
-	if (distance(adj, s, dest, v, pred, dist) == False):
-		return -1
-	path = []
-	crawl = dest
-	crawl = dest
-	path.append(crawl)
-	
-	while (pred[crawl] != -1):
-		path.append(pred[crawl])
-		crawl = pred[crawl]
-	return dist[dest]
-		
 def diameter(graph):
+    if type(graph) != Graph:
+        raise TypeError('graph must be instance of class Graph')
+
     diameter = 0
+
     for v in range(len(graph)):
-        for v2 in range(len(graph)):
-            shortest = shortestDistance(graph, v, v2, len(graph))
-            if shortest > diameter:
-                diameter = shortest
+            distances = breadth_search(graph, seed=v)[0] # pegando os tamanhos de todos os caminhos simples que saem de v
+            longest = distances.max() # pegando o tamanho do maior caminho simples que sai de v
+
+            if longest > diameter:
+                diameter = longest
+
     return diameter   
+
+# -----------------------------------------------
+
 
 def writeOnFile(filename, info):
     if filename:
         with open(filename,'w') as f:
             for v in info:
                 f.write('{}: {}\n'.format(v[0], v[1]))
+
 
 # MAIN
 # -----------------------------------------------
