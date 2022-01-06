@@ -213,6 +213,7 @@ class Graph:
         s += '  ' + np.array2string(self.__graph, prefix='  ')
         return s
 
+    # A funcao __getitem__() eh chamada quando usamos classe[key]
     def __getitem__(self, key):
         return self.__graph[key]
 
@@ -221,232 +222,235 @@ class Graph:
 
 
 def breadth_search_as_mtx(graph, seed=0):
-    # visited: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
     #
-    visited = np.zeros(graph.n, dtype=np.int8)
+    visited = np.zeros(len(graph), dtype=np.int8)
     visited[seed] = True # iniciamos a descoberta dos vertices pela semente
 
-    # tree: array representando a arvore gerada. cada elemento contem uma dupla do tipo [pai, nivel]
-    #   representando o pai e o nivel na arvore do noh v do grafo
-    #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
     #
-    tree = np.ones( (graph.n, 2), dtype=np.int32 ) * (-1)
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    tree[seed][0] = seed # colocamos a raiz como pai de si mesma
-    tree[seed][1] = 0 # definimos o nivel da raiz como 0
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    #
+    parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
+
+    # [NOTE] Se um vertice terminar com distance[v] == -1 e/ou parent[v] == -1, significa que ele nao
+    #    esta conectado a raiz
+
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+    parent[seed] = seed # colocamos a raiz como pai de si mesma
 
     # queue: fila com os indices dos vertices que precisam ser investigados
     #   |_ queue[0]: o vertice a ser investigado no momento
     #
-    queue = np.array([seed], dtype=np.int32)
+    queue = [seed]
 
     while (len(queue) != 0):
         current = queue[0] # pegamos o indice do vertice sendo investigado
-        queue = queue[1:] # retiramos ele da fila
+        queue.pop(0) # retiramos ele da fila
 
-        for vert in range(graph.n): # iremos percorrer todos os vertices para ver se sao vizinhos do atual
-            if graph.graph[current][vert]: # existe uma aresta (current,vert), isto eh, eles sao vizinhos
+        for vert in range(len(graph)): # iremos percorrer todos os vertices para ver se sao vizinhos do atual
+            if graph[current][vert]: # existe uma aresta (current,vert), isto eh, eles sao vizinhos
                 if vert != current: # para evitar loops, ignoramos arestas do tipo (i,i)
                     if not visited[vert]: # vert ainda nao foi investigado
-                        queue = np.append(queue, np.int32(vert)) # adicionamos vert a fila para ser investigado
+                        queue.append(vert) # adicionamos vert a fila para ser investigado
                         visited[vert] = True # indicamos que vert ja foi descoberto
                         
-                        tree[vert][0] = current # declaramos current como o vertice pai de vert na arvore
-                        tree[vert][1] = tree[current][1] + 1 # declaramos vert como estando 1 nivel acima de current
+                        distance[vert] = distance[current] + 1 # declaramos vert como estando 1 nivel acima de current
+                        parent[vert] = current # declaramos current como o vertice pai de vert na arvore
 
-    return tree
+    return (distance, parent)
+
+# -----------------------------------------------
 
 
 def breadth_search_as_lst(graph, seed=0):
-    # visited: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
     #
-    visited = np.zeros(graph.n, dtype=np.int8)
-    visited[seed] = False # iniciamos a descoberta dos vertices pela semente
+    visited = np.zeros(len(graph), dtype=np.int8)
+    visited[seed] = True # iniciamos a descoberta dos vertices pela semente
 
-    # tree: array representando a arvore gerada. cada elemento contem uma dupla do tipo [pai, nivel]
-    #   representando o pai e o nivel na arvore do noh v do grafo
-    #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
     #
-    tree = np.ones( (graph.n, 2), dtype=np.int32 ) * (-1)
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    tree[seed][0] = seed # colocamos a raiz como pai de si mesma
-    tree[seed][1] = 0 # definimos o nivel da raiz como 0
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    #
+    parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
+
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+    parent[seed] = seed # colocamos a raiz como pai de si mesma
 
     # queue: fila com os indices dos vertices que precisam ser investigados
     #   |_ queue[0]: o vertice a ser investigado no momento
     #
-    queue = np.array([seed], dtype=np.int32)
+    queue = [seed]
 
     while (len(queue) != 0):
         current = queue[0] # pegamos o indice do vertice sendo investigado
-        queue = queue[1:] # retiramos ele da fila
+        queue.pop(0) # retiramos ele da fila
 
-        for neighbor in graph.graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
+        for neighbor in graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
             if neighbor != current: # para evitar loops, ignoramos arestas do tipo (i,i)
                 if not visited[neighbor]: # o vizinho ainda nao foi investigado
-                    queue = np.append(queue, np.int32(neighbor)) # adicionamos o vizinho a lista para ser investigado
+                    queue.append(neighbor) # adicionamos o vizinho a lista para ser investigado
                     visited[neighbor] = True # indicamos que o vizinho ja foi descoberto
         
-                    tree[neighbor][0] = current # declaramos cur como o vertice pai de neighbor na arvore
-                    tree[neighbor][1] = tree[current][1] + 1 # declaramos neighbor como estando 1 nivel acima de cur
+                    distance[neighbor] = distance[current] + 1 # declaramos neighbor como estando 1 nivel acima de cur
+                    parent[neighbor] = current # declaramos cur como o vertice pai de neighbor na arvore
 
-    return tree
-
-
-def breadth_search(graph, seed=0, filename=None):
-    # if type(graph) != Graph:
-    #     print('Error: graph must be of class Graph')
-    #     exit()
-
-
-    if graph.mode == 'mtx':
-        tree = breadth_search_as_mtx(graph, seed)
-    else:
-        tree = breadth_search_as_lst(graph, seed)
-
-
-    if filename:
-        with open(filename,'w') as f:
-            for v in tree:
-                f.write('{},{}\n'.format(v[0], v[1]))
-
-    return tree
+    return (distance, parent)
 
 # -----------------------------------------------
 
 
 def depth_search_as_mtx(graph, seed=0):
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
+    #
     visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
 
-    stack = np.array([seed], dtype=np.int32)
-
-    # tree: array representando a arvore gerada. cada elemento tree[v] eh uma dupla do tipo [pai, nivel]
-    #   representando o pai e o nivel na arvore do noh v do grafo
-    #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
     #
-    tree = np.ones( (graph.n, 2), dtype= np.int32 ) * (-1)
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    tree[seed][0] = seed # colocamos a raiz como pai de si mesma
-    tree[seed][1] = 0 # definimos o nivel da raiz como 0
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    #
+    parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
+
+    # [NOTE] Se um vertice terminar com distance[v] == -1 e/ou parent[v] == -1, significa que ele nao
+    #    esta conectado a raiz
+
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+    parent[seed] = seed # colocamos a raiz como pai de si mesma
+
+    # stack: pilha com os indices dos vertices que precisam ser investigados
+    #   |_ stack[-1]: o vertice a ser investigado no momento
+    #
+    stack = [seed]
 
     while (len(stack) != 0):
-        current = stack[-1] # analisamos o elemento no topo da pilha
-
-        stack = np.delete(stack, -1) # retiramos o elemento do topo da pilha
+        current = stack[-1] # pegamos o indice do vertice sendo investigado
+        stack.pop(-1) # retiramos ele da pilha
         
         if not visited[current]:
             visited[current] = True
 
-            # [REF] https://stackoverflow.com/questions/6771428/most-efficient-way-to-reverse-a-numpy-array
-            for vert in graph.graph[current][::-1]: # pegamos todos os elementos da lista usando step=-1
+            for vert in range(len(graph))[::-1]: # pegamos todos os elementos da lista usando step=-1
                 # seguindo o padrao da aula 5 (slide 18) percorremos os vertices em ordem descrescente
                 # desse modo os vizinhos de menor indice ficam sempre no topo da pilha, isto eh, sao analisados primeiro
-                if (graph.graph[current][vert]): # se os dois forem vizinhos
-                    if (not visited[vert]): # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
-                        stack = np.append(stack, np.int32(vert)) # adicionamos o vizinho na pilha
+                if graph[current][vert]: # se os dois forem vizinhos
+                    if not visited[vert]: # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
+                        stack.append(vert) # adicionamos o vizinho na pilha
 
-                        tree[vert][0] = current # o pai do noh vert eh o no sendo analisado
-                        tree[vert][1] = tree[current][1] + 1 # o nivel do noh  vert eh um nivel acima do atual
+                        distance[vert] = distance[current] + 1 # o nivel do noh vert eh um nivel acima do atual
+                        parent[vert] = current # o pai do noh vert eh o no sendo analisado
 
-    return tree
+    return (distance, parent)
+
+# -----------------------------------------------
 
 
 def depth_search_as_lst(graph, seed=0):
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
+    #
     visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
 
-    stack = np.array([seed], dtype=np.int32)
-
-    # tree: array representando a arvore gerada. cada elemento tree[v] eh uma dupla do tipo [pai, nivel]
-    #   representando o pai e o nivel na arvore do noh v do grafo
-    #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
     #
-    tree = np.ones( (graph.n, 2), dtype= np.int32 ) * (-1)
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
 
-    tree[seed][0] = seed # colocamos a raiz como pai de si mesma
-    tree[seed][1] = 0 # definimos o nivel da raiz como 0
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    #
+    parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
+
+    # [NOTE] Se um vertice terminar com distance[v] == -1 e/ou parent[v] == -1, significa que ele nao
+    #    esta conectado a raiz
+
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+    parent[seed] = seed # colocamos a raiz como pai de si mesma
+
+    # stack: pilha com os indices dos vertices que precisam ser investigados
+    #   |_ stack[-1]: o vertice a ser investigado no momento
+    #
+    stack = [seed]
 
     while (len(stack) != 0):
-        current = stack[-1] # analisamos o elemento no topo da pilha
-
-        stack = stack[:-1] # retiramos o elemento do topo da pilha
+        current = stack[-1] # pegamos o indice do vertice sendo investigado
+        stack.pop(-1) # retiramos ele da pilha
         
         if not visited[current]:
             visited[current] = True
 
             # [REF] https://stackoverflow.com/questions/6771428/most-efficient-way-to-reverse-a-numpy-array
-            for neighbor in graph.graph[current][::-1]: # pegamos todos os elementos da lista usando step=-1
+            for neighbor in graph[current][::-1]: # pegamos todos os elementos da lista usando step=-1
                 # seguindo o padrao da aula 5 (slide 18) percorremos os vertices em ordem descrescente
                 # desse modo os vizinhos de menor indice ficam sempre no topo da pilha, isto eh, sao analisados primeiro
-                if (not visited[neighbor]): # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
-                    stack = np.append(stack, np.int32(neighbor)) # adicionamos o vizinho na pilha
+                if not visited[neighbor]: # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
+                    stack.append(neighbor) # adicionamos o vizinho na pilha
 
-                    tree[neighbor][0] = current # o pai do noh vert eh o no sendo analisado
-                    tree[neighbor][1] = tree[current][1] + 1 # o nivel do noh  vert eh um nivel acima do atual
+                    distance[neighbor] = distance[current] + 1 # o nivel do noh neighbor eh um nivel acima do atual
+                    parent[neighbor] = current # o pai do noh neighbor eh o no sendo analisado
 
-    return tree
+    return (distance, parent)
+
+# -----------------------------------------------
 
 
-def depth_search(graph, seed=0, filename=None):
+def breadth_search(graph, seed=0, savefile=None):
+    # if type(graph) != Graph:
+    #     print('Error: graph must be of class Graph')
+    #     exit()
+
+
+    if graph.mode == 'mtx':
+        distance, parent = breadth_search_as_mtx(graph, seed)
+    else:
+        distance, parent = breadth_search_as_lst(graph, seed)
+
+
+    if savefile:
+        with open(savefile,'w') as f:
+            for v in range(len(graph)):
+                f.write('{},{}\n'.format(parent[v], distance[v]))
+
+    return distance, parent
+
+# -----------------------------------------------
+
+
+def depth_search(graph, seed=0, savefile=None):
     # if type(graph) != Graph:
     #     print('Error: graph must be of class Graph')
     #     exit()
 
     if graph.mode == 'mtx':
-        tree = depth_search_as_mtx(graph,seed)
+        distance, parent = depth_search_as_mtx(graph,seed)
     else:
-        tree = depth_search_as_lst(graph,seed)
+        distance, parent = depth_search_as_lst(graph,seed)
 
-    if filename:
-        with open(filename,'w') as f:
-            for v in tree:
-                f.write('{},{}\n'.format(v[0], v[1]))
+    if savefile:
+        with open(savefile,'w') as f:
+            for v in range(len(graph)):
+                f.write('{},{}\n'.format(parent[v], distance[v]))
 
-    return tree
+    return distance, parent
+
+# -----------------------------------------------
 
 bfs = breadth_search
 dfs = depth_search
 
-def distance_as_lst_2(graph, seed, destiny):
-    # visited: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
-    #
-    visited = np.zeros(graph.n, dtype=np.int8)
-    visited[seed] = False # iniciamos a descoberta dos vertices pela semente
+# -----------------------------------------------
 
-    # distance[v]: distancia (medida em arestas) do vertice v ate a semente. se um vertice
-    #    terminar com distancia == -1, significa que ele nao esta conectado a semente (grafo desconexo)
-    #
-    distance = np.ones( graph.n, dtype=np.int32 ) * (-1)
-
-    distance[seed] = 0 # definimos a semente como tendo distancia 0 de si mesma
-    
-    # queue: fila com os indices dos vertices que precisam ser investigados
-    #   |_ queue[0]: o vertice a ser investigado no momento
-    #
-    queue = np.array([seed])
-    current = seed
-
-    while (len(queue) != 0) and (current != destiny):
-        current = queue[0] # pegamos o indice do vertice sendo investigado
-        queue = queue[1:] # retiramos ele da fila
-
-        for neighbor in graph.graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
-            if neighbor != current: # para evitar loops, ignoramos arestas do tipo (i,i)
-                if not visited[neighbor]: # o vizinho ainda nao foi investigado
-                    queue = np.append(queue, np.int32(neighbor)) # adicionamos o vizinho a lista para ser investigado
-                    visited[neighbor] = True # indicamos que o vizinho ja foi descoberto
-        
-                    distance[neighbor] = distance[current] + 1 # declaramos neighbor como estando 1 aresta a mais do vertice atual
-
-    return distance[destiny]
-
-def distance_2(graph, seed, destiny):
-    if graph.mode == 'mtx':
-        print('aviso: distance_as_mtx nao implementada ainda')
-        d = -1
-    else:
-        d = distance_as_lst_2(graph, seed, destiny)
-
-    return d
 
 def DFSUtil(graph, temp, v, visited):
     visited[v] = True
