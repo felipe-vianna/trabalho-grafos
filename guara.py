@@ -31,10 +31,10 @@ class Graph:
         self.__graph = np.array(0)
         self.__degrees = np.array(0)
 
-        self.__dg_min = 0
-        self.__dg_max = 0
-        self.__dg_avg = 0.0
-        self.__dg_median = 0.0
+        self.__dg_min = None
+        self.__dg_max = None
+        self.__dg_avg = None
+        self.__dg_median = None
         
         # -----------------------------------------------
 
@@ -59,10 +59,10 @@ class Graph:
         self.__graph = np.zeros((self.__shape['v'],self.__shape['v']), dtype=np.uint8) # inicializando a matriz com zeros (False)
         self.__degrees = np.zeros(self.__shape['v'], dtype=np.uint) # inicializando todos os graus dos vertices em zero
 
-        self.__dg_min = 0
-        self.__dg_max = 0
-        self.__dg_avg = 0.0
-        self.__dg_median = 0.0
+        self.__dg_min = None
+        self.__dg_max = None
+        self.__dg_avg = None
+        self.__dg_median = None
 
         self.__shape['e'] = 0
         for edge in lines[1:]: # cada linha representa uma aresta
@@ -108,7 +108,7 @@ class Graph:
 
         self.__graph = np.empty(self.__shape['v'], dtype=object) # inicializando a lista/array de listas de vizinhos
         for v in range(self.__shape['v']):
-            self.__graph[v] = np.empty(0, dtype=np.uint) # inicializando as listas de vizinhos com um array vazio
+            self.__graph[v] = [] # inicializando as listas de vizinhos com um array vazio
 
         self.__degrees = np.zeros(self.__shape['v'], dtype=np.uint) # inicializando todos os graus dos vertices em zero
 
@@ -129,15 +129,16 @@ class Graph:
 
             if not edge[1] in self.__graph[ edge[0] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
                 # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
-                where = np.searchsorted(self.__graph[ edge[0] ], edge[1]) # descobrindo onde inserir edge[1] na lista de vizinhos de edge[0] de modo a lista continuar ordenada
-                self.__graph[ edge[0] ] = np.insert(self.__graph[ edge[0] ], where, edge[1])
+                self.__graph[ edge[0] ].append(edge[1])
 
-                where = np.searchsorted(self.__graph[ edge[1] ], edge[0]) # descobrindo onde inserir edge[0] na lista de vizinhos de edge[1] de modo a lista continuar ordenada
-                self.__graph[ edge[1] ] = np.insert(self.__graph[ edge[1] ], where, edge[0]) # podemos colocar essa linha pois o grafo eh nao-direcionado
+                self.__graph[ edge[1] ].append(edge[0])
                 self.__shape['e'] += 1
 
                 self.__degrees[ edge[0] ] += 1
                 self.__degrees[ edge[1] ] += 1
+
+        for v in range(len(self.graph)):
+            self.graph[v] = np.sort(self.graph[v])
 
         return self.__graph
 
@@ -207,10 +208,13 @@ class Graph:
 
     # A funcao __repr__() eh chamada quando usamos print(classe)
     def __repr__(self):
-        s = 'Graph \"' + self.name + '\"\n'
-        s += '  {}\n'.format(self.shape)
+        s = f'Graph \"{self.name}\" ({self.__mode})\n'
+        s += '  {}\n'.format(self.__shape)
         s += '  ' + np.array2string(self.__graph, prefix='  ')
         return s
+
+    def __getitem__(self, key):
+        return self.__graph[key]
 
 
 # -----------------------------------------------
@@ -226,7 +230,7 @@ def breadth_search_as_mtx(graph, seed=0):
     #   representando o pai e o nivel na arvore do noh v do grafo
     #   caso algum vertice termine com [-1,-1], significa que ele nao esta conectado a arvore
     #
-    tree = np.ones( (graph.n, 2), dtype=int32 ) * (-1)
+    tree = np.ones( (graph.n, 2), dtype=np.int32 ) * (-1)
 
     tree[seed][0] = seed # colocamos a raiz como pai de si mesma
     tree[seed][1] = 0 # definimos o nivel da raiz como 0
@@ -234,7 +238,7 @@ def breadth_search_as_mtx(graph, seed=0):
     # queue: fila com os indices dos vertices que precisam ser investigados
     #   |_ queue[0]: o vertice a ser investigado no momento
     #
-    queue = np.array([seed])
+    queue = np.array([seed], dtype=np.int32)
 
     while (len(queue) != 0):
         current = queue[0] # pegamos o indice do vertice sendo investigado
@@ -271,7 +275,7 @@ def breadth_search_as_lst(graph, seed=0):
     # queue: fila com os indices dos vertices que precisam ser investigados
     #   |_ queue[0]: o vertice a ser investigado no momento
     #
-    queue = np.array([seed])
+    queue = np.array([seed], dtype=np.int32)
 
     while (len(queue) != 0):
         current = queue[0] # pegamos o indice do vertice sendo investigado
@@ -314,7 +318,7 @@ def breadth_search(graph, seed=0, filename=None):
 def depth_search_as_mtx(graph, seed=0):
     visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
 
-    stack = np.array([seed])
+    stack = np.array([seed], dtype=np.int32)
 
     # tree: array representando a arvore gerada. cada elemento tree[v] eh uma dupla do tipo [pai, nivel]
     #   representando o pai e o nivel na arvore do noh v do grafo
@@ -350,7 +354,7 @@ def depth_search_as_mtx(graph, seed=0):
 def depth_search_as_lst(graph, seed=0):
     visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
 
-    stack = np.array([seed])
+    stack = np.array([seed], dtype=np.int32)
 
     # tree: array representando a arvore gerada. cada elemento tree[v] eh uma dupla do tipo [pai, nivel]
     #   representando o pai e o nivel na arvore do noh v do grafo
@@ -364,7 +368,7 @@ def depth_search_as_lst(graph, seed=0):
     while (len(stack) != 0):
         current = stack[-1] # analisamos o elemento no topo da pilha
 
-        stack = np.delete(stack, -1) # retiramos o elemento do topo da pilha
+        stack = stack[:-1] # retiramos o elemento do topo da pilha
         
         if not visited[current]:
             visited[current] = True
@@ -401,6 +405,48 @@ def depth_search(graph, seed=0, filename=None):
 
 bfs = breadth_search
 dfs = depth_search
+
+def distance_as_lst_2(graph, seed, destiny):
+    # visited: lista de tamanho n com flags indicando se um vertice ainda precisa ser investigado
+    #
+    visited = np.zeros(graph.n, dtype=np.int8)
+    visited[seed] = False # iniciamos a descoberta dos vertices pela semente
+
+    # distance[v]: distancia (medida em arestas) do vertice v ate a semente. se um vertice
+    #    terminar com distancia == -1, significa que ele nao esta conectado a semente (grafo desconexo)
+    #
+    distance = np.ones( graph.n, dtype=np.int32 ) * (-1)
+
+    distance[seed] = 0 # definimos a semente como tendo distancia 0 de si mesma
+    
+    # queue: fila com os indices dos vertices que precisam ser investigados
+    #   |_ queue[0]: o vertice a ser investigado no momento
+    #
+    queue = np.array([seed])
+    current = seed
+
+    while (len(queue) != 0) and (current != destiny):
+        current = queue[0] # pegamos o indice do vertice sendo investigado
+        queue = queue[1:] # retiramos ele da fila
+
+        for neighbor in graph.graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
+            if neighbor != current: # para evitar loops, ignoramos arestas do tipo (i,i)
+                if not visited[neighbor]: # o vizinho ainda nao foi investigado
+                    queue = np.append(queue, np.int32(neighbor)) # adicionamos o vizinho a lista para ser investigado
+                    visited[neighbor] = True # indicamos que o vizinho ja foi descoberto
+        
+                    distance[neighbor] = distance[current] + 1 # declaramos neighbor como estando 1 aresta a mais do vertice atual
+
+    return distance[destiny]
+
+def distance_2(graph, seed, destiny):
+    if graph.mode == 'mtx':
+        print('aviso: distance_as_mtx nao implementada ainda')
+        d = -1
+    else:
+        d = distance_as_lst_2(graph, seed, destiny)
+
+    return d
 
 def DFSUtil(graph, temp, v, visited):
     visited[v] = True
