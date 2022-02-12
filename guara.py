@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 class Graph:
-    def __init__(self, filename, mem_mode='lst'):
+    def __init__(self, filename, mem_mode='lst', weighted=False, directed=False):
 
         # Verificando se o nome do arquivo passado eh uma string
         if (type(filename) != type('')):
@@ -28,6 +28,12 @@ class Graph:
         self.shape = {'v': 0,'e': 0} # dicionario com o numero de vertices (v) e arestas (e)
         self.graph = np.array(0) # a matriz/lista de ajacencia
         self.degrees = np.array(0) # degree[v]: o grau do vertice v
+        
+        # -----------------------------------------------
+
+        self.weighted = weighted
+        self.has_neg_weights = False
+        self.directed = directed
         
         # -----------------------------------------------
 
@@ -95,21 +101,26 @@ class Graph:
 
             edge[0] = int(edge[0]) - 1 # [NOTE] consideramos que os indices dos vertices no arquivo texto iniciam sempre em 1
             edge[1] = int(edge[1]) - 1
+            if self.weighted:
+                edge[2] = float(edge[2])
+                if edge[2] < 0:
+                    self.has_neg_weights = True
 
 
             if not edge[1] in self.graph[ edge[0] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
                 # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
-                self.graph[ edge[0] ].append(edge[1])
-
-                self.graph[ edge[1] ].append(edge[0])
-                self.shape['e'] += 1
+                self.graph[ edge[0] ].append( edge[1] if not self.weighted else np.array([edge[1], edge[2]]) )
 
                 self.degrees[ edge[0] ] += 1
-                self.degrees[ edge[1] ] += 1
+                self.shape['e'] += 1
+
+                if not self.directed:
+                    self.graph[ edge[1] ].append( edge[0] if not self.weighted else [edge[0], edge[2]] )
+                    self.degrees[ edge[1] ] += 1
 
         self.graph = np.array(self.graph, dtype=object) # passando de lista para array numpy
         for v in range(len(self.graph)):
-            self.graph[v] = np.sort(self.graph[v]) # ordenamos a lista de vizinhos de cada vertice
+            self.graph[v] = np.sort(self.graph[v], axis=0) # ordenamos a lista de vizinhos de cada vertice
 
         return self.graph
 
