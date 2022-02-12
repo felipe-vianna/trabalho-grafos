@@ -5,6 +5,9 @@ legenda:
 OBS: Apos a leitura do arquivo txt, em todos os casos tratei os indices dos vertices iniciando em 0
      (talvez precisemos mudar)
 
+-------------------------
+Trabalho 1
+
 1. Entrada / 3. Representação
   [OK] ler como matriz
   [OK] ler como lista/vetor (pode ser que haja implementacao mais eficiente)
@@ -34,3 +37,8 @@ OBS: Apos a leitura do arquivo txt, em todos os casos tratei os indices dos vert
   [OK] tamanho das comp con (num vertices)
   [OK] lista com os vertices das comp con
   [OK] listar comp con de acordo com o tamanho (num vertices)
+
+-------------------------
+Trabalho 2
+
+ [  ] verificar qual o peso maximo das arestas para poder definir o tipo dos dados da matriz de adj
