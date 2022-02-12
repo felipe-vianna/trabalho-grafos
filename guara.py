@@ -136,6 +136,40 @@ class Graph:
 
     # -----------------------------------------------
 
+    def neighbors(self, vert):
+        """
+        Recebe um indice de vertice e retorna uma lista (array numpy) com os indices dos vertices 
+        vizinhos a ele
+        """
+        if self.mem_mode == 'mtx':
+            return np.nonzero( self.graph[vert] != 0 ) # selecionamos, na linha referente ao vertice, os indices dos elementos que sao nao-nulos
+        else:
+            if not self.weighted:
+                return self.graph[vert]
+            else:
+                # [REF] https://stackoverflow.com/questions/8386675/extracting-specific-columns-in-numpy-array
+                return self.graph[vert,:,0] # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
+
+    # -----------------------------------------------
+
+    def edge(self, v1, v2):
+        """
+        Recebe dois indices de vertices e retorna o peso da aresta que liga eles ou zero, caso os
+        vertices nao sejam vizinhos
+        """
+        if self.mem_mode == 'mtx':
+            return self.graph[v1][v2]
+        else:
+            if not self.weighted:
+                return 1 if v2 in self.graph[v1] else 0
+            else:
+                for e in self.graph[v1]:
+                    if e[0] == v2:
+                        return e[1] # retornamos o peso
+                return 0
+
+    # -----------------------------------------------
+
     """
         [REF]
         - https://www.tutorialsteacher.com/python/property-decorator
