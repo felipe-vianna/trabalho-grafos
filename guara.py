@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 class Graph:
-    def __init__(self, filename, memory_mode='mtx'):
+    def __init__(self, filename, mem_mode='lst'):
 
         # Verificando se o nome do arquivo passado eh uma string
         if (type(filename) != type('')):
@@ -10,8 +10,8 @@ class Graph:
 
 
         # Verificando se o modo de armazenamento em memoria passado eh valido
-        self.__mode = memory_mode.lower()
-        if (self.__mode != 'mtx') and (self.__mode != 'lst'):
+        self.mem_mode = mem_mode.lower()
+        if (self.mem_mode != 'mtx') and (self.mem_mode != 'lst'):
             raise ValueError('memory_mode must be either \"mtx\" (matrix) or \"lst\" (list)')
 
         # Verificando se o arquivo passado existe
@@ -25,18 +25,13 @@ class Graph:
 
         # -----------------------------------------------
 
-        self.__shape = {'v': 0,'e': 0} # dicionario com o numero de vertices e arestas
-        self.__graph = np.array(0)
-        self.__degrees = np.array(0)
-
-        self.__dg_min = None
-        self.__dg_max = None
-        self.__dg_avg = None
-        self.__dg_median = None
+        self.shape = {'v': 0,'e': 0} # dicionario com o numero de vertices (v) e arestas (e)
+        self.graph = np.array(0) # a matriz/lista de ajacencia
+        self.degrees = np.array(0) # degree[v]: o grau do vertice v
         
         # -----------------------------------------------
 
-        if self.__mode == 'mtx':
+        if self.mem_mode == 'mtx':
             self.read_as_matrix(filename)
         else:
             self.read_as_list(filename)
@@ -52,35 +47,30 @@ class Graph:
         with open(filename) as f:
             lines = f.readlines() # lista de strings contendo o conteudo de cada linha
 
-        self.__shape['v'] = int(lines[0]) # numero de vertices
+        self.shape['v'] = int(lines[0]) # numero de vertices
 
-        self.__graph = np.zeros((self.__shape['v'],self.__shape['v']), dtype=np.uint8) # inicializando a matriz com zeros (False)
-        self.__degrees = np.zeros(self.__shape['v'], dtype=np.uint) # inicializando todos os graus dos vertices em zero
+        self.graph = np.zeros( (self.shape['v'], self.shape['v']), dtype=np.uint8) # inicializando a matriz com zeros (False)
+        self.degrees = np.zeros(self.shape['v']) # inicializando todos os graus dos vertices em zero
 
-        self.__dg_min = None
-        self.__dg_max = None
-        self.__dg_avg = None
-        self.__dg_median = None
-
-        self.__shape['e'] = 0
+        self.shape['e'] = 0
         for edge in lines[1:]: # cada linha representa uma aresta
 
-            edge = edge.split()
+            edge = edge.split() # separando a linha em duas strings contendo, cada uma, um dos vertices da aresta
 
             edge[0] = int(edge[0]) - 1 # [NOTE] consideramos que os indices dos vertices no arquivo texto iniciam sempre em 1
             edge[1] = int(edge[1]) - 1
 
 
-            if not self.__graph[ edge[0] ][ edge[1] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
+            if not self.graph[ edge[0] ][ edge[1] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
                 # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
-                self.__graph[ edge[0] ][ edge[1] ] = True
-                self.__graph[ edge[1] ][ edge[0] ] = True # podemos colocar essa linha pois o grafo eh nao-direcionado
-                self.__shape['e'] += 1
+                self.graph[ edge[0] ][ edge[1] ] = True
+                self.graph[ edge[1] ][ edge[0] ] = True # podemos colocar essa linha pois o grafo eh nao-direcionado
+                self.shape['e'] += 1
 
-                self.__degrees[ edge[0] ] += 1
-                self.__degrees[ edge[1] ] += 1  
+                self.degrees[ edge[0] ] += 1
+                self.degrees[ edge[1] ] += 1  
 
-        return self.__graph
+        return self.graph
 
     # -----------------------------------------------
 
@@ -91,118 +81,83 @@ class Graph:
         with open(filename) as f:
             lines = f.readlines() # lista de strings contendo o conteudo de cada linha
 
-        self.__shape['v'] = int(lines[0]) # numero de vertices
+        self.shape['v'] = int(lines[0]) # numero de vertices
 
-        self.__graph = np.empty(self.__shape['v'], dtype=object) # inicializando a lista/array de listas de vizinhos
-        for v in range(self.__shape['v']):
-            self.__graph[v] = [] # inicializando as listas de vizinhos com um array vazio
+        self.graph = [ [] for i in range(self.shape['v']) ] # graph[v] contem a lista de vizinhos do vertice v
 
-        self.__degrees = np.zeros(self.__shape['v'], dtype=np.uint) # inicializando todos os graus dos vertices em zero
+        self.degrees = np.zeros(self.shape['v']) # inicializando todos os graus dos vertices em zero
 
-        self.__dg_min = None
-        self.__dg_max = None
-        self.__dg_avg = None
-        self.__dg_median = None
-
-        self.__shape['e'] = 0
+        self.shape['e'] = 0
 
         for edge in lines[1:]: # cada linha representa uma aresta
 
-            edge = edge.split()
+            edge = edge.split() # separando a linha em duas strings contendo, cada uma, um dos vertices da aresta
 
             edge[0] = int(edge[0]) - 1 # [NOTE] consideramos que os indices dos vertices no arquivo texto iniciam sempre em 1
             edge[1] = int(edge[1]) - 1
 
 
-            if not edge[1] in self.__graph[ edge[0] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
+            if not edge[1] in self.graph[ edge[0] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
                 # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
-                self.__graph[ edge[0] ].append(edge[1])
+                self.graph[ edge[0] ].append(edge[1])
 
-                self.__graph[ edge[1] ].append(edge[0])
-                self.__shape['e'] += 1
+                self.graph[ edge[1] ].append(edge[0])
+                self.shape['e'] += 1
 
-                self.__degrees[ edge[0] ] += 1
-                self.__degrees[ edge[1] ] += 1
+                self.degrees[ edge[0] ] += 1
+                self.degrees[ edge[1] ] += 1
 
+        self.graph = np.array(self.graph, dtype=object) # passando de lista para array numpy
         for v in range(len(self.graph)):
-            self.graph[v] = np.sort(self.graph[v])
+            self.graph[v] = np.sort(self.graph[v]) # ordenamos a lista de vizinhos de cada vertice
 
-        return self.__graph
+        return self.graph
 
     # -----------------------------------------------
 
     """
-        [NOTE] Os atributos que possuem dois underline (__) a frente do nome sao como se fossem privados
-        (ainda podem ser acessados, mas ficam mais escondidos). Usamos o decorador 'property' para torna-los
-        facilmente visiveis para o usuario.
-        
-        - https://www.tutorialsteacher.com/python/public-private-protected-modifiers
+        [REF]
         - https://www.tutorialsteacher.com/python/property-decorator
         - https://www.programiz.com/python-programming/property
     """
-
-    @property
-    def mode(self):
-        return self.__mode
-
-    @property
-    def graph(self):
-        return self.__graph
-
-    @property
-    def shape(self):
-        return self.__shape
         
     @property
     def n(self):
-        return self.__shape['v']
+        return self.shape['v']
 
     @property
     def m(self):
-        return self.__shape['e']
+        return self.shape['e']
 
-    @property
-    def degrees(self):
-        return self.__degrees
-    
-    @property
+    # -----------------------------------------------
+
     def dg_min(self):
-        if (self.__dg_min is None):
-            self.__dg_min = self.__degrees.min()
-        return self.__dg_min
+        return self.degrees.min()
     
-    @property
     def dg_max(self):
-        if (self.__dg_max is None):
-            self.__dg_max = self.__degrees.max()
-        return self.__dg_max
+        return self.degrees.max()
 
-    @property
     def dg_avg(self):
-        if (self.__dg_avg is None):
-            self.__dg_avg = 2 * self.__degrees.mean() # de acordo com definicao do slide (aula 3 - slide 10)
-        return self.__dg_avg
+        # de acordo com definicao do slide (aula 3 - slide 10)
+        return 2 * (self.m / self.n)
 
-    @property
     def dg_median(self):
-        if (self.__dg_median is None):
-            self.__dg_median = np.median(self.__degrees)
-        return self.__dg_median
+        return np.median(self.degrees)
 
     # A funcao __len__() eh chamada quando usamos len(classe)
     def __len__(self):
-        return self.__shape['v']
+        return self.shape['v']
 
     # A funcao __repr__() eh chamada quando usamos print(classe)
     def __repr__(self):
-        s = f'Graph \"{self.name}\" ({self.__mode})\n'
-        s += '  {}\n'.format(self.__shape)
-        s += '  ' + np.array2string(self.__graph, prefix='  ')
+        s =  f'Graph \"{self.name}\" ({self.mem_mode})\n'
+        s += f'  {self.shape}\n'
+        s +=  '  ' + np.array2string(self.graph, prefix='  ')
         return s
 
     # A funcao __getitem__() eh chamada quando usamos classe[key]
     def __getitem__(self, key):
-        return self.__graph[key]
+        return self.graph[key]
 
 
 # -----------------------------------------------
@@ -393,7 +348,7 @@ def breadth_search(graph, seed=0, savefile=None):
         raise TypeError('graph must be instance of class Graph')
 
 
-    if graph.mode == 'mtx':
+    if graph.mem_mode == 'mtx':
         distance, parent = breadth_search_mtx(graph, seed)
     else:
         distance, parent = breadth_search_lst(graph, seed)
@@ -413,7 +368,7 @@ def depth_search(graph, seed=0, savefile=None):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
-    if graph.mode == 'mtx':
+    if graph.mem_mode == 'mtx':
         distance, parent = depth_search_mtx(graph,seed)
     else:
         distance, parent = depth_search_lst(graph,seed)
@@ -542,7 +497,7 @@ def distance(graph, seed, target):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
-    if graph.mode =='mtx':
+    if graph.mem_mode =='mtx':
         return distance_mtx(graph, seed, target)
     else:
         return distance_lst(graph, seed, target)
