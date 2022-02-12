@@ -55,7 +55,10 @@ class Graph:
 
         self.shape['v'] = int(lines[0]) # numero de vertices
 
-        self.graph = np.zeros( (self.shape['v'], self.shape['v']), dtype=np.uint8) # inicializando a matriz com zeros (False)
+        if self.weighted:
+            self.graph = np.zeros( (self.shape['v'], self.shape['v']) ) # inicializando a matriz com zeros (False)
+        else:
+            self.graph = np.zeros( (self.shape['v'], self.shape['v']), dtype=np.uint8) # inicializando a matriz com zeros (False)
         self.degrees = np.zeros(self.shape['v']) # inicializando todos os graus dos vertices em zero
 
         self.shape['e'] = 0
@@ -65,16 +68,23 @@ class Graph:
 
             edge[0] = int(edge[0]) - 1 # [NOTE] consideramos que os indices dos vertices no arquivo texto iniciam sempre em 1
             edge[1] = int(edge[1]) - 1
-
+            if self.weighted:
+                edge[2] = float(edge[2]) # o peso da aresta
+                if edge[2] < 0:
+                    self.has_neg_weights = True
 
             if not self.graph[ edge[0] ][ edge[1] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
-                # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
-                self.graph[ edge[0] ][ edge[1] ] = True
-                self.graph[ edge[1] ][ edge[0] ] = True # podemos colocar essa linha pois o grafo eh nao-direcionado
-                self.shape['e'] += 1
+
+                self.graph[ edge[0] ][ edge[1] ] = True if not self.weighted else edge[2]
 
                 self.degrees[ edge[0] ] += 1
-                self.degrees[ edge[1] ] += 1  
+                self.shape['e'] += 1
+
+                if not self.directed:
+                    # quando o grafo eh nao-direcionado, a aresta (u,v) == (v,u)
+                    self.graph[ edge[1] ][ edge[0] ] = True if not self.weighted else edge[2]
+
+                    self.degrees[ edge[1] ] += 1  
 
         return self.graph
 
