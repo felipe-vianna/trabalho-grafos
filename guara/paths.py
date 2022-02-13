@@ -1,6 +1,6 @@
 
 import numpy as np
-from guara import Graph
+from graph import Graph
 
 def breadth_search_mtx(graph, seed=0):
     # visited[v]: flag booleana indicando se o vertice v ja foi investigado
@@ -360,3 +360,5 @@ def diameter(graph):
     return diameter   
 
 # -----------------------------------------------
+
+
