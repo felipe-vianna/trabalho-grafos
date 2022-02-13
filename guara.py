@@ -99,7 +99,13 @@ class Graph:
 
         self.shape['v'] = int(lines[0]) # numero de vertices
 
-        self.graph = [ [] for i in range(self.shape['v']) ] # graph[v] contem a lista de vizinhos do vertice v
+        if not self.weighted:
+            self.graph = [ [] for i in range(self.shape['v']) ] # graph[v] contem a lista de vizinhos do vertice v
+        else:
+            # graph[v] contem duas listas: uma de vizinhos de v e uma com os pesos das arestas que os ligam
+            #   graph[v][0]: lista de vizinhos de v
+            #   graph[v][1]: lista de pesos das arestas que liga v a seus vizinhos
+            self.graph = [ [ [],[] ] for i in range(self.shape['v']) ]
 
         self.degrees = np.zeros(self.shape['v']) # inicializando todos os graus dos vertices em zero
 
@@ -118,19 +124,40 @@ class Graph:
 
 
             if not edge[1] in self.graph[ edge[0] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
-                # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
-                self.graph[ edge[0] ].append( edge[1] if not self.weighted else np.array([edge[1], edge[2]]) )
+                # self.graph[ edge[0] ].append( edge[1] if not self.weighted else np.array([edge[1], edge[2]]) )
+                if not self.weighted:
+                    self.graph[ edge[0] ].append( edge[1] )
+                else:
+                    self.graph[ edge[0] ][0].append( edge[1] ) # adicionamos o indice do vertice edge[1], vizinho de edge[0]
+                    self.graph[ edge[0] ][1].append( edge[2] ) # adicionamos o peso da aresta que liga edge[0] a edge[1]
 
                 self.degrees[ edge[0] ] += 1
                 self.shape['e'] += 1
 
                 if not self.directed:
-                    self.graph[ edge[1] ].append( edge[0] if not self.weighted else [edge[0], edge[2]] )
+                    # como o grafo eh nao direcionado, a aresta (i,j) eh equivalente a (j,i) e incluiremos ambas
+                    # self.graph[ edge[1] ].append( edge[0] if not self.weighted else [edge[0], edge[2]] )
+                    if not self.weighted:
+                        self.graph[ edge[1] ].append( edge[0] )
+                    else:
+                        self.graph[ edge[1] ][0].append( edge[0] ) # adicionamos o indice do vertice edge[0], vizinho de edge[1]
+                        self.graph[ edge[1] ][1].append( edge[2] ) # adicionamos o peso da aresta que liga edge[0] a edge[1]
                     self.degrees[ edge[1] ] += 1
 
         self.graph = np.array(self.graph, dtype=object) # passando de lista para array numpy
+        # agora ordenamos as listas de vizinhos em ordem crescente de indices (a lista de pesos eh ordenada em concordancia com essa ordem)
         for v in range(len(self.graph)):
-            self.graph[v] = np.sort(self.graph[v], axis=0) # ordenamos a lista de vizinhos de cada vertice
+            if not self.weighted:
+                self.graph[v] = np.sort(self.graph[v], axis=0) # ordenamos a lista de vizinhos de cada vertice
+            else:
+                neighbors = np.array(self.graph[v][0])
+                weights = np.array(self.graph[v][1])
+
+                neighbors_sort_index = np.argsort(neighbors) # os indices a serem usados para ordenar a lista de vizinhos de v
+
+                # [REF] https://numpy.org/doc/stable/reference/generated/numpy.argsort.html
+                self.graph[v][0] = np.take_along_axis(neighbors, neighbors_sort_index, axis=0) # ordenamos a lista de vizinhos de cada vertice
+                self.graph[v][1] = np.take_along_axis(weights, neighbors_sort_index, axis=0) # ordenamos a lista de pesos de acordo com a ordem dos vizinhos
 
         return self.graph
 
@@ -147,8 +174,7 @@ class Graph:
             if not self.weighted:
                 return self.graph[vert]
             else:
-                # [REF] https://stackoverflow.com/questions/8386675/extracting-specific-columns-in-numpy-array
-                return self.graph[vert,:,0] # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
+                return self.graph[vert][0] # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
 
     # -----------------------------------------------
 
@@ -163,10 +189,11 @@ class Graph:
             if not self.weighted:
                 return 1 if v2 in self.graph[v1] else 0
             else:
-                for e in self.graph[v1]:
-                    if e[0] == v2:
-                        return e[1] # retornamos o peso
-                return 0
+                for i, neighbor in enumerate(self.graph[v1][0]):
+                    if neighbor == v2:
+                        return self.graph[v1][1][i] # retornamos o peso
+                    elif neighbor > v2: # a lista de vizinhos eh ordenada, portanto se o vizinho atual for maior que v2, quer dizer que v2 nao esta na lista
+                        return 0
 
     # -----------------------------------------------
 
@@ -205,7 +232,8 @@ class Graph:
 
     # A funcao __repr__() eh chamada quando usamos print(classe)
     def __repr__(self):
-        s =  f'Graph \"{self.name}\" ({self.mem_mode})\n'
+        s =  f'Graph \"{self.name}\" '
+        s += f'(mem_mode: {self.mem_mode}, weighted: {self.weighted}, directed: {self.directed})\n'
         s += f'  {self.shape}\n'
         s +=  '  ' + np.array2string(self.graph, prefix='  ')
         return s
