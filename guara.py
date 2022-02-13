@@ -178,6 +178,22 @@ class Graph:
 
     # -----------------------------------------------
 
+    def weights(self, vert):
+        """
+        Recebe um indice de vertice e retorna uma lista (array numpy) com os pesos das arestas incidentes
+        a ele. A ordem dos pesos eh equivalente a ordem crescente dos indices dos vizinhos. Isto, eh,
+        o primeiro peso da lista eh referente ao vizinho de menor indice e assim por diante.
+        """
+        if self.mem_mode == 'mtx':
+            return self.graph[vert][ self.graph[vert] != 0 ] # selecionamos, na linha referente ao vertice, os elementos nao-nulos
+        else:
+            if not self.weighted:
+                return np.ones(self.graph[vert][0])
+            else:
+                return self.graph[vert][1] # pegamos, da linha do vertice, apenas a coluna referente aos pesos das arestas incidentes
+
+    # -----------------------------------------------
+
     def edge(self, v1, v2):
         """
         Recebe dois indices de vertices e retorna o peso da aresta que liga eles ou zero, caso os
