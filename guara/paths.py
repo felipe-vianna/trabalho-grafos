@@ -395,3 +395,107 @@ def dijkstra(graph, s):
 
 # -----------------------------------------------
 
+# def floyd_warshall(graph):
+
+#     dist = np.full( shape=(graph.n, graph.n), fill_value=np.inf)
+
+#     for v in graph:
+#         dist[v][ graph.neighbors(v) ] = graph.weights(v)
+#         dist[v,v] = 0
+
+#     parent = np.full( shape=(graph.n, graph.n), fill_value=-1)
+
+#     for v in graph:
+#         parent[v][ graph.neighbors(v) ] = v
+#         parent[v,v] = v
+
+#     for k in range(1, graph.n):
+#         for i in range(1, graph.n):
+#             for j in range(1, graph.n):
+#                 print(f'i:{i}, j:{j}, k:{k}')
+#                 print(dist)
+#                 print(parent)
+#                 if ((dist[i,k]+dist[k,j]) < dist[i,j]):
+
+#                     if (i != j) or (k > 1):
+#                     # verificamos para nao tratar uma aresta negativa como um ciclo negativo, ja que o grafo eh nao direcionado
+#                         dist[i,j] = (dist[i,k] + dist[k,j])
+#                         parent[i,j] = parent[k,j]
+
+#                     if (dist[i,i] < 0):
+#                         print('---- ',dist[i,i])
+#                         print(dist)
+#                         print(parent)
+#                         raise Exception(f'Encontrado ciclo negativo no grafo {graph.name}. Nao foi possivel calcular distancias.')
+
+#     return dist, parent
+
+# -----------------------------------------------
+
+
+def mst(graph, s, savefile=None):
+    """
+    Recebe um  grafo nao-direcionado e um vertice semente para o algoritmo de Prim, retornando
+    a MST resultante.
+
+    A MST eh retornada como uma tupla (parent, cost), onde parent e cost sao listas no formato:
+        parent[v]: o vert 'u' da aresta (u,v) presente na MST (para v != s)
+        cost[v]: o peso da aresta (u,v) descrita por parent[v] (para v != s)
+        parent[s] == s
+        cost[s] == 0
+    Para obter o custo total da arvore, pode-se usar o metodo cost.sum()
+
+    Caso o grafo seja desconexo, nao existe (por definicao) uma MST. Nesse caso eh retornada a
+    tupla (None, None).
+
+    Caso seja especificado um arquivo em savefile, o arquivo eh no formato:
+        primeira linha: '<numero_de_vertices> <custo_total_mst>'
+        demais linhas: '<u> <v> <peso_uv>'
+    """
+
+    cost = np.array([ np.inf for v in graph ])
+    cost[s] = 0
+
+    parent = np.array([ -1 for v in graph ]) # nesse algoritmo, o pai de um vertice eh o no que o inseriu na arvore
+    parent[s] = s
+
+    # O heap ponderado, onde cada elemento tem uma chave identificadora e o peso que define 
+    # sua ordem de prioridade. Usaremos os indices dos vertices como as chaves e as distancias 
+    # ate a semenete como seus pesos
+    heap = weighted_heap()
+
+    for v in graph:
+        heap.insert(v, np.inf) if (v != s) else heap.insert(s, 0)
+
+    u = heap.remove() # tiramos a semente do heap
+
+    while u is not None:
+        u = u[0] #lembrando que cada elemento no heap contem chave e peso, pegamos a chave (vert)
+
+        for v in graph.neighbors(u):
+            e = graph.edge(u,v)
+
+            if (cost[v] > e) and (parent[u] != v):
+                # Ao percorrermos os vizinhos de u, ignoramos a aresta (v,u) que ja tenha
+                # sido incluida na arvore. Se v for pai de u, eh porque ele ja estava na 
+                # arvore e u entrou por meio dele.
+                parent[v] = u
+                cost[v] = e
+                heap.update(v, cost[v])
+                # print(u, v, parent, cost)
+
+        u = heap.remove()
+
+    if (-1 in parent): 
+        # ha componentes desconexas no grafo, entao nao existe MST desse grafo
+        # (por definicao a MST conecta todos os vertices do grafo)
+        return None, None
+
+    if savefile:
+        with open(savefile,'w') as f:
+            f.write(f'{len(cost)} {cost.sum()}')
+            for v in range(len(graph)):
+                if v != s:
+                    f.write(f'{parent[v]} {v} {cost[v]}\n')
+
+    return parent, cost
