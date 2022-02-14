@@ -269,6 +269,9 @@ class Graph:
     def __getitem__(self, key):
         return self.graph[key]
 
+    def __iter__(self):
+        return iter(range(self.n))
+
 
 # -----------------------------------------------
 
