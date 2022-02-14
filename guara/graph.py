@@ -102,10 +102,9 @@ class Graph:
         if not self.weighted:
             self.graph = [ [] for i in range(self.shape['v']) ] # graph[v] contem a lista de vizinhos do vertice v
         else:
-            # graph[v] contem duas listas: uma de vizinhos de v e uma com os pesos das arestas que os ligam
-            #   graph[v][0]: lista de vizinhos de v
-            #   graph[v][1]: lista de pesos das arestas que liga v a seus vizinhos
-            self.graph = [ [ [],[] ] for i in range(self.shape['v']) ]
+            # graph[v] contem uma lista onde cada elemento eh uma dupla do tipo (u,w), em que 
+            # 'u' eh o indice do vertice vizinho de v e 'w' eh o peso da aresta incidente a eles
+            self.graph = [ [] for i in range(self.shape['v']) ]
 
         self.degrees = np.zeros(self.shape['v']) # inicializando todos os graus dos vertices em zero
 
@@ -124,12 +123,10 @@ class Graph:
 
 
             if not edge[1] in self.graph[ edge[0] ]: # verificamos se a aresta ja foi analisada e incluida no grafo
-                # self.graph[ edge[0] ].append( edge[1] if not self.weighted else np.array([edge[1], edge[2]]) )
                 if not self.weighted:
                     self.graph[ edge[0] ].append( edge[1] )
                 else:
-                    self.graph[ edge[0] ][0].append( edge[1] ) # adicionamos o indice do vertice edge[1], vizinho de edge[0]
-                    self.graph[ edge[0] ][1].append( edge[2] ) # adicionamos o peso da aresta que liga edge[0] a edge[1]
+                    self.graph[ edge[0] ].append( [edge[1],edge[2]] )
 
                 self.degrees[ edge[0] ] += 1
                 self.shape['e'] += 1
@@ -140,8 +137,7 @@ class Graph:
                     if not self.weighted:
                         self.graph[ edge[1] ].append( edge[0] )
                     else:
-                        self.graph[ edge[1] ][0].append( edge[0] ) # adicionamos o indice do vertice edge[0], vizinho de edge[1]
-                        self.graph[ edge[1] ][1].append( edge[2] ) # adicionamos o peso da aresta que liga edge[0] a edge[1]
+                        self.graph[ edge[1] ].append( [edge[0],edge[2]] )
                     self.degrees[ edge[1] ] += 1
 
         self.graph = np.array(self.graph, dtype=object) # passando de lista para array numpy
@@ -150,14 +146,17 @@ class Graph:
             if not self.weighted:
                 self.graph[v] = np.sort(self.graph[v], axis=0) # ordenamos a lista de vizinhos de cada vertice
             else:
-                neighbors = np.array(self.graph[v][0])
-                weights = np.array(self.graph[v][1])
+                self.graph[v] = np.array(self.graph[v])
 
+                neighbors = self.graph[v][:,0] # lista (array) dos vizinhos de v
+                weights = self.graph[v][:,1] # lista (array) dos pesos de cada aresta incidente a v
+
+                # # [REF] https://numpy.org/doc/stable/reference/generated/numpy.argsort.html
                 neighbors_sort_index = np.argsort(neighbors) # os indices a serem usados para ordenar a lista de vizinhos de v
 
-                # [REF] https://numpy.org/doc/stable/reference/generated/numpy.argsort.html
-                self.graph[v][0] = np.take_along_axis(neighbors, neighbors_sort_index, axis=0) # ordenamos a lista de vizinhos de cada vertice
-                self.graph[v][1] = np.take_along_axis(weights, neighbors_sort_index, axis=0) # ordenamos a lista de pesos de acordo com a ordem dos vizinhos
+                self.graph[v][:,0] = neighbors[neighbors_sort_index] # ordenamos a lista de vizinhos do menor para o maior
+                self.graph[v][:,1] = weights[neighbors_sort_index] # ordenamos os pesos de acordo com a lista de vizinhos
+
 
         return self.graph
 
@@ -169,12 +168,13 @@ class Graph:
         vizinhos a ele
         """
         if self.mem_mode == 'mtx':
-            return np.nonzero( self.graph[vert] != 0 ) # selecionamos, na linha referente ao vertice, os indices dos elementos que sao nao-nulos
+            return np.where( self.graph[vert] != 0 )[0] # selecionamos, na linha referente ao vertice, os indices dos elementos que sao nao-nulos
         else:
             if not self.weighted:
                 return self.graph[vert]
             else:
-                return self.graph[vert][0] # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
+                # return self.graph[vert][0] # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
+                return np.int32(self.graph[vert][:,0]) # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
 
     # -----------------------------------------------
 
@@ -190,26 +190,37 @@ class Graph:
             if not self.weighted:
                 return np.ones(self.graph[vert][0])
             else:
-                return self.graph[vert][1] # pegamos, da linha do vertice, apenas a coluna referente aos pesos das arestas incidentes
+                return self.graph[vert][:,1] # pegamos, da linha do vertice, apenas a coluna referente aos pesos das arestas incidentes
 
     # -----------------------------------------------
 
     def edge(self, v1, v2):
         """
-        Recebe dois indices de vertices e retorna o peso da aresta que liga eles ou zero, caso os
-        vertices nao sejam vizinhos
+        Recebe dois indices de vertices e retorna o peso da aresta que liga eles (ou zero, caso os
+        vertices nao sejam vizinhos)
         """
         if self.mem_mode == 'mtx':
             return self.graph[v1][v2]
         else:
             if not self.weighted:
-                return 1 if v2 in self.graph[v1] else 0
+                # Podemos usar a funcao np.searchsorted() para percorrer a lista de vizinhos, que eh 
+                # ordenada. Esta funcao tem complexidade O(log(n)), por isso eh uma alternativa
+                # mais interessante que percorrer a lista inteira buscando v2
+                where = np.searchsorted(self.graph[v1], v2)
+                if (where == len(self.graph[v1])) or (v2 != self.graph[v1][where]):
+                    # v2 nao esta na lista dos vizinhos
+                    # se where == len: v2 maior que todos os vizinhos
+                    return 0
+
+                return self.graph[v1][where]
             else:
-                for i, neighbor in enumerate(self.graph[v1][0]):
-                    if neighbor == v2:
-                        return self.graph[v1][1][i] # retornamos o peso
-                    elif neighbor > v2: # a lista de vizinhos eh ordenada, portanto se o vizinho atual for maior que v2, quer dizer que v2 nao esta na lista
-                        return 0
+                where = np.searchsorted(self.graph[v1][:,0], v2)
+                if (where == len(self.graph[v1])) or (v2 != self.graph[v1][where,0]):
+                    # v2 nao esta na lista dos vizinhos
+                    # se where == len: v2 maior que todos os vizinhos
+                    return 0
+
+                return self.graph[v1][where,1]
 
     # -----------------------------------------------
 
