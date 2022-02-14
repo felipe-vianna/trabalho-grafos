@@ -1,0 +1,70 @@
+
+# --------------------
+# Tutorial
+
+    A biblioteca desenvolvida eh bastante vertice-centrica. Isto eh, diversas propriedades foram 
+implementadas na classe Graph para simplificar o acesso aos vertices e suas caracteristicas. 
+
+    Por exemplo, a funcao len(), quando utilizada em um objeto da classe, retorna o numero de vertices 
+presentes no grafo. Entao, para percorer os indices dos vertices de um grafo pode-se fazer:
+
+        g = Graph('file.txt')
+        for v in range(len(g)):
+            print(v) # o indice do vertice
+
+    A classe tambem fornece outra maneira mais concisa de fazer o mesmo:
+
+        g = Graph('file.txt')
+        for v in g:
+            print(v) # o indice do vertice
+
+    Para acessar os pesos das arestas incidentes a um dado vertice (ex: vert. 3), pode-se fazer:
+
+        g = Graph('file.txt')
+        v = 3
+        for neigh in g.neighbors(v):
+            weight = g.edge(v, neigh) # o peso da aresta ligando v e neigh
+            print(weight)
+
+    Esses metodos auxiliam o usuario a abstrair da estrutura utilizada para armazenar as ajacencias
+dos vertices (matriz ou lista). Porem, caso um usuario queira ter acesso a essas estruturas para implementar
+um algoritmo de uma maneira que achar mais eficiente, pode acessar o atributo Graph.adjac ou acessa-la
+diretamente com o indice do vertice:
+
+        g = Graph('file.txt')
+        vert = 3
+        # os comandos abaixo sao equivalente (vert_adj == vert_adj2)
+        vert_adj = graph[vert]
+        vert_adj2 = graph.adjac[vert]
+
+    Neste caso, eh preciso que o usuario tenha sempre em mente qual estrutura interna esta usando. Isto
+pois, caso a estrutura seja uma matriz, o comando retornara uma linha da matriz de comprimento igual ao
+numero de vertices do grafo. Caso a estrutura seja uma lista, retornara a lista de vizinhos do vertice v,
+cujo tamanho pode variar de acordo com o vertice do grafo.
+
+    A advertencia vale tambem quando se esta lidando com grafos com pesos e sem pesos nas arestas.
+Quando se usa listas de adjacencia em grafos com pesos, eh preciso uma dimensao a mais que as listas
+de grafos sem pesos. Por exemplo, supondo que, tanto no grafo g quanto em wg abaixo, o vertice de 
+indice 2 seja o primeiro vizinho do vertice 1:
+
+        g = Graph('file.txt', mem_mode='lst') # grafo sem pesos
+        wg = Graph('file2.txt' mem_mode='lst', weighted=True) # grafo com pesos
+
+        u = 1
+        r1 = g[u][0] # pegando o primeiro elemento da lista de adjacencia do vertice u em g
+        r2 = wg[u][0] # pegando o primeiro elemento da lista de adjacencia do vertice u em wg
+
+        print(r1)
+        # out: 2
+
+        print(r2)
+        # out: [2,3.0]
+
+    O indice do vizinho era o mesmo nos dois casos (2), mas o elemento retornado era diferente. No segundo
+caso, a aresta (1,2) possuia peso igual a 3.0 e este valor foi retornado junto com o indice do vizinho.
+
+    Conhecer bem essas estruturas pode permitir ao usuario um dominio maior sobre os algoritmos que
+desenvolver, porem com o custo de fazer o tratamento de diferentes casos de grafo dentro dos seus codigos,
+possivelmente dificultando nao soh o desenvolvimento deles, mas tambem a leitura e o entedimento 
+deles. Ao utilizar os metodos fornecidos pela biblioteca, o usuario pode desvencilhar-se dessas
+preocupacoes.

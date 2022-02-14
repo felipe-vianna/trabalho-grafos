@@ -1,0 +1,121 @@
+
+# ------------------------------------------------
+# Documentacao
+
+classe
+Graph(filename, mem_mode='lst', weighted=False, directed=False):
+    Classe basica de grafo, inicializado a partir de um arquivo txt. Considerou-se que
+    no arquivo o indice dos vertices (identificador deles) inicia sempre em 1. Porem,
+    uma vez inicializado o grafo, o primeiro vertice eh o vertice de indice 0 (indice 1 no arquivo).
+
+    # -- inputs
+    filename (str)
+        O caminho para o arquivo txt, onde esta descrito o grafo
+    mem_mode (str: 'mtx' ou 'lst')
+        Define qual estrutura deve ser usada para armazenar
+        o grafo na memoria do computador: matriz de ajdacencia ou lista de ajdacencia
+    weighted (bool)
+        Declara se as arestas do grafo possuem peso. As arestas sao declaradas
+        no arquivo filename
+    directed (bool)
+        Declara se o grafo deve ser tratado como grafo direcionado
+
+# ------------------------------------------------
+
+metodo
+Graph.neighbors(v):
+    Recebe um vertice e retorna um array com os vizinhos dele, ordenados do menor para o
+    maior.
+
+    # -- inputs
+    v (int)
+        O indice do vertice no grafo
+
+    # -- outputs
+    neighbors (int array)
+        O array contendo os vizinhos do vertice.
+
+# ------------------------------------------------
+
+metodo
+Graph.edge(u,v):
+    Recebe dois vertices e retorna o peso da aresta (u,v) que liga eles. Se eles nao forem vizinhos,
+     retorna 0. Caso sejam vizinhos e o grafo nao possuir pesos, retorna 1.
+
+    # -- inputs
+    u (int)
+        O indice do primeiro vertice
+    v (int)
+        O indice do segundo vertice
+    
+    # -- outputs
+    weight (float):
+        O peso da aresta (u,v) do grafo
+
+# ------------------------------------------------
+
+metodo
+Graph.weights(v):
+    Recebe um vertice e retorna um array com os pesos das arestas incidentes a ele. As arestas
+    sao ordenadas de acordo com o indice dos vizinhos de v, do menor para o maior. Pode-se obter
+    os mesmos valores com os comandos abaixo:
+
+        g = Graph('file.txt',weighted=True)
+        w = []
+        for neigh in g.neighbors(v):
+            w.append( g.edge(v, neigh) )
+        return w
+
+    # -- inputs
+    v (int)
+        O indice do vertice do qual obter os pesos das arestas incidentes
+    
+    # -- outputs
+    weights (float array)
+        Os pesos das arestas ligando v a seus vizinhos, ordenados pelo indice dos vizinhos
+
+# ------------------------------------------------
+
+atributo
+Graph.shape: (dict)
+    Dicionario com as dimensoes do grafo
+        Graph.shape['v']: numero de vertices do grafo (equivalente a len(Graph))
+        Graph.shape['e']: numero de arestas do grafo
+
+# ------------------------------------------------
+
+atributo
+Graph.n: (int) 
+    O numero de vertices no grafo. Equivalente a Graph.shape['v'] ou len(Graph)
+
+# ------------------------------------------------
+
+atributo
+Graph.m: (int)
+    O numero de arestas no grafo. Equivalente a Graph.shape['e']
+
+# ------------------------------------------------
+
+atributo
+Graph.degrees: (int array)
+    Array com os graus de cada vertice.
+        Graph.degrees[v]: grau do vertice v
+
+# ------------------------------------------------
+
+metodo
+Graph.dg_max():
+    Calcula e retorna o grau maximo dos vertices do grafo
+
+metodo
+Graph.dg_min():
+    Calcula e retorna o grau minimo dos vertices do grafo. Quando for zero, o grafo eh desconexo.
+
+metodo
+Graph.dg_avg():
+    Calcula e retorna a grau medio dos vertices do grafo, que eh definido como o dobro do numero
+    de arestas dividido pelo numero de vertices.
+
+metodo
+Graph.dg_mediana():
+    Calcula e retorna a mediana dos graus dos vertices do grafo
