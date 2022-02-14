@@ -391,8 +391,6 @@ def dijkstra(graph, s):
 
         u = heap.remove()
 
-    print('dist:',dist)
-    print('prnt:',parent)
     return dist, parent
 
 # -----------------------------------------------
