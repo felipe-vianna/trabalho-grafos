@@ -53,7 +53,7 @@ class Graph:
         with open(filename) as f:
             lines = f.readlines() # lista de strings contendo o conteudo de cada linha
 
-        self.shape['v'] = int(lines[0]) # numero de vertices
+        self.shape['v'] = int(lines[0].split()[0]) # numero de vertices
 
         if self.weighted:
             self.adjac = np.zeros( (self.shape['v'], self.shape['v']) ) # inicializando a matriz com zeros (False)
