@@ -188,7 +188,7 @@ class Graph:
             return self.graph[vert][ self.graph[vert] != 0 ] # selecionamos, na linha referente ao vertice, os elementos nao-nulos
         else:
             if not self.weighted:
-                return np.ones(self.graph[vert][0])
+                return np.ones(self.graph[vert])
             else:
                 return self.graph[vert][:,1] # pegamos, da linha do vertice, apenas a coluna referente aos pesos das arestas incidentes
 
