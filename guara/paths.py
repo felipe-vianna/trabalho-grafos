@@ -6,7 +6,7 @@ from guara.utils import weighted_heap
 # -----------------------------------------------
 
 
-def breadth_search(graph, seed=0, savefile=None):
+def breadth_search(graph, seed=0, target=None, savefile=None):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
@@ -42,6 +42,9 @@ def breadth_search(graph, seed=0, savefile=None):
                     distance[u] = distance[v] + 1 # declaramos o vizinho como estando 1 nivel acima do atual
                     parent[u] = v # declaramos o vertice atual como o pai de u na arvore
 
+                    if u == target:
+                        queue = []
+                        break # quando encontramos o vertice de destino, saimos do loop
 
     if savefile:
         with open(savefile,'w') as f:
