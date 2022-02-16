@@ -44,18 +44,17 @@ Trabalho 2
   Obrigatorio
   [OK] carregar grafos com pesos
   [OK] carregar grafos direcionados
-  [  ] distancia entre dois vertices (juntando bfs, dijkstra e FW)
+  [OK] distancia entre dois vertices (juntando bfs, dijkstra e bellman-ford)
   [OK] dijkstra
-  [++] FW
-      -- falta verificacao para funcionar com grafo nao-direcionado
+  [OK] Floyd-warshall
   [OK] MST (Prim)
 
   Melhorias
   [  ] fazer comentarios no cabecalho de cada funcao (entrada, saida, etc)
   [  ] verificar qual o peso maximo das arestas para poder definir o tipo dos dados da matriz de adj
   [  ] tratar caso em que vertice do grafo nao possui vizinhos (read_lst e read_mtx)
-  [  ] alterar read para conseguir ler grafos do tipo que eh salvo em disco pela funcao mst (ou seja, na primeira linha pegar apenas o primeiro elemento)
-  [  ] unificar breadth_search_lst e breadth_search_mtx
-  [  ] unificar depth_search
+  [OK] alterar read para conseguir ler grafos com mais de um elemento na primeira linha do arquivo txt
+  [OK] unificar breadth_search_lst e breadth_search_mtx
+  [OK] unificar depth_search
   [  ] implementar opcao de zero_indexing no grafo
   [OK] modificar nome do atributo Graph.graph para Graph.adjac
