@@ -5,6 +5,7 @@ class weighted_heap():
     # a implementacao de heap que precisavamos era um pouco diferente da nativa, mas ela serve como refer
     def __init__(self):
         self.queue = [] # a fila de prioridade
+        # [TODO] implementar tabela de acesso a fila para otimizar a atualizacao de um elemento
 
     def __len__(self):
         return len(self.queue)
@@ -13,9 +14,9 @@ class weighted_heap():
 
     def insert(self, key, weight):
         """
-        Insere um elemento dado por uma chave e um peso. A chave eh o identificador do elemento, que
-        eh retornada quando retira-se o elemento do heap. O peso eh o valor utilizado para determinar
-        a prioridade, a posicao do elemento na fila.
+        Insere um elemento dado por uma chave (identificador) e um peso. Reordena os elementos da
+        fila com base nos seus pesos.
+        Complexidade: O(log(n))
         """
 
         self.queue.append((key, weight)) # adicionamos o elemento no final do heap
@@ -29,6 +30,7 @@ class weighted_heap():
     def remove(self):
         """
         Tira o primeiro elemento da fila e a reordena. Retorna o primeiro elemento.
+        Complexidade: O(log(n))
         """
 
         if len(self.queue) == 0:
@@ -50,6 +52,10 @@ class weighted_heap():
     # -------------------------------------------------------------------
 
     def update(self, key, new_weight):
+        """
+        Atualiza o peso de um elemento, identificado pela chave, e reordena o heap.
+        Complexidade: O(n) (pois precisa buscar a chave em todos os elementos, pode mudar futuramente)
+        """
 
         queue_index = 0
         for idx, elem in enumerate(self.queue):
@@ -69,7 +75,7 @@ class weighted_heap():
     def climb(self, index):
         """
         Recebe um indice de elemento na fila e "sobe" esse elemento (troca ele com seus pais)
-        ate que a ordem correta do heap seja alcancada
+        ate que a ordem correta do heap seja alcancada.
         """
         parent_index = (index - 1)//2 # o indice na fila do pai do elemento que esta subindo
 
@@ -98,7 +104,7 @@ class weighted_heap():
     def fall(self, index):
         """
         Recebe um indice na fila de um elemento e faz esse elemento "cair" (troca-o de lugar com o
-        menor dos seus filhos) ate que o heap esteja ordenado
+        menor dos seus filhos) ate que o heap esteja ordenado.
         """
 
         child_index = self.get_smaller_child(index)
@@ -126,7 +132,7 @@ class weighted_heap():
 
     def get_smaller_child(self, index):
         """
-        Recebe o indice de um elemento na fila e retorna o indice do filho que possuir o menor peso
+        Recebe o indice de um elemento na fila e retorna o indice do filho que possuir o menor peso.
         """
         child_index = (2 * index) + 1 # o indice do primeiro filho (caso exista)
 
