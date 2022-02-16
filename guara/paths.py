@@ -230,7 +230,7 @@ def diameter(graph):
     diameter = 0
 
     for v in range(len(graph)):
-            distances = breadth_search(graph, seed=v)[0] # pegando os tamanhos de todos os caminhos simples que saem de v
+            distances = bfs(graph, seed=v)[0] # pegando os tamanhos de todos os caminhos simples que saem de v
             longest = distances.max() # pegando o tamanho do maior caminho simples que sai de v
 
             if longest > diameter:
