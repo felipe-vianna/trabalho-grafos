@@ -187,11 +187,37 @@ def breadth_search(graph, seed=0, savefile=None):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
+    # [NOTE] Se um vertice v terminar com distance[v] == -1 e/ou parent[v] == -1, significa que ele nao
+    #    esta conectado a raiz
 
-    if graph.mem_mode == 'mtx':
-        distance, parent = breadth_search_mtx(graph, seed)
-    else:
-        distance, parent = breadth_search_lst(graph, seed)
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
+    visited = np.zeros(len(graph), dtype=np.int8)
+    visited[seed] = True # iniciamos a descoberta dos vertices pela semente
+
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+
+    # parent[v]: o vertice pai de v na arvore gerada pela busca
+    parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
+    parent[seed] = seed # colocamos a raiz como pai de si mesma
+
+    # queue: fila dos vertices que precisam ser investigados
+    queue = [seed]
+
+    while (len(queue) != 0):
+        v = queue[0] # pegamos o vertice do inicio da fila
+        queue.pop(0) # retiramos ele da fila
+
+        for u in graph.neigbors(v):
+            if u != v: # para evitar loops, ignoramos arestas do tipo (i,i)
+                if not visited[u]: # o vizinho u ainda nao foi investigado
+                    queue.append(u) # adicionamos o vizinho na fila para ser investigado
+                    visited[u] = True # indicamos que o vizinho ja foi descoberto
+
+                    distance[u] = distance[v] + 1 # declaramos o vizinho como estando 1 nivel acima do atual
+                    parent[u] = v # declaramos o vertice atual como o pai de u na arvore
 
 
     if savefile:
