@@ -275,12 +275,48 @@ def dijkstra(graph, seed, target=None):
 
 # -----------------------------------------------
 
-# def floyd_warshall(graph):
+def floyd_warshall(graph):
 
-#     # dist[i,j]: contem o custo total do menor caminho que se conhece que vai de i para j
-#     dist = np.full( shape=(graph.n, graph.n), fill_value=np.inf)
+    # dist[i,j]: contem o custo total do menor caminho que se conhece que vai de i para j
+    dist = np.full( shape=(graph.n, graph.n), fill_value=np.inf)
 
-#     neg_cycle = False # flag indicando se foi encontrado um ciclo negativo no grafo
+    neg_cycle = False # flag indicando se foi encontrado um ciclo negativo no grafo
+
+    # inicializamos dist com o custo para ir de um vertice a outro sem vertices intermediarios
+    for v in graph:
+        dist[v][ graph.neighbors(v) ] = graph.weights(v) # selecionamos, na linha v, os elementos correpospondentes aos vizinhos de v
+        dist[v,v] = 0 # o custo de ir de v para v eh nulo
+
+    # parent[i,j]: contem o vertice anterior a j no menor caminho que se conhece de i para j (isto eh, o pai de j)
+    parent = np.full( shape=(graph.n, graph.n), fill_value=(-1))
+
+    for v in graph:
+        parent[v][ graph.neighbors(v) ] = v
+        parent[v,v] = v
+
+    for k in range(1, len(graph)):
+        # comecamos o k em 1, pois k = 0 eh a propria inicializacao da matriz
+        # print(f'k:{k-1}')
+        # print(dist)
+        # print(parent)
+        for i in graph:
+            for j in graph:
+                if (dist[i,k] + dist[k,j]) < dist[i,j]:
+
+                    dist[i,j] = (dist[i,k] + dist[k,j])
+                    parent[i,j] = parent[k,j]
+
+                    if (i == j) and (dist[i,i] < 0):
+                        neg_cycle = True
+                        # print(f'i:{i}, j:{j}, k:{k}')
+                        # print(dist)
+                        # print(parent)
+                        # raise Exception(f'Encontrado ciclo negativo no grafo {graph.name}. Nao foi possivel calcular distancias.')
+
+    return dist, parent, neg_cycle
+
+# -----------------------------------------------
+
 
 #     # inicializamos dist com o custo para ir de um vertice a outro sem vertices intermediarios
 #     for v in graph:
