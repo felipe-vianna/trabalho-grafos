@@ -6,7 +6,7 @@ from guara.utils import weighted_heap
 # -----------------------------------------------
 
 
-def breadth_search(graph, seed=0, target=None, savefile=None):
+def bfs(graph, seed, target=None, savefile=None):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
@@ -56,7 +56,7 @@ def breadth_search(graph, seed=0, target=None, savefile=None):
 # -----------------------------------------------
 
 
-def depth_search(graph, seed=0, savefile=None):
+def dfs(graph, seed, savefile=None):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
@@ -102,10 +102,6 @@ def depth_search(graph, seed=0, savefile=None):
 
     return distance, parent
 
-# -----------------------------------------------
-
-bfs = breadth_search
-dfs = depth_search
 
 # -----------------------------------------------
 
