@@ -243,10 +243,10 @@ def diameter(graph):
 
 def dijkstra(graph, s):
 
-    dist = [ np.inf for v in range(len(graph)) ]
+    dist = np.array( [ np.inf for v in range(len(graph)) ] )
     dist[s] = 0
 
-    parent = [ -1 for v in range(len(graph)) ]
+    parent = np.array( [ -1 for v in range(len(graph)) ] )
     parent[s] = s
 
     # O heap ponderado, onde cada elemento tem uma chave identificadora e o peso que define 
