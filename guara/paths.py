@@ -130,95 +130,21 @@ def connectedComponents(graph, vertices):
 # -----------------------------------------------
 
 
-def distance_mtx(graph, seed, target):
-    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
-    #
-    visited = np.zeros(len(graph), dtype=np.int8)
-    visited[seed] = True # iniciamos a descoberta dos vertices pela semente
-
-    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
-    #    vertice na arvore gerada pela busca
-    #
-    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
-
-    # [NOTE] Se um vertice terminar com distance[v] == -1, significa que ele nao esta conectado a raiz
-
-    distance[seed] = 0 # definimos o nivel da raiz como 0
-
-    # queue: fila com os indices dos vertices que precisam ser investigados
-    #   |_ queue[0]: o vertice a ser investigado no momento
-    #
-    queue = [seed]
-
-    while (len(queue) != 0):
-        current = queue[0] # pegamos o indice do vertice sendo investigado
-        queue.pop(0) # retiramos ele da fila
-
-        for vert in range(len(graph)): # iremos percorrer todos os vertices para ver se sao vizinhos do atual
-            if graph[current][vert]: # existe uma aresta (current,vert), isto eh, eles sao vizinhos
-                if vert != current: # para evitar loops, ignoramos arestas do tipo (i,i)
-                    if not visited[vert]: # vert ainda nao foi investigado
-                        queue.append(vert) # adicionamos vert a fila para ser investigado
-                        visited[vert] = True # indicamos que vert ja foi descoberto
-                        
-                        distance[vert] = distance[current] + 1 # declaramos vert como estando 1 nivel acima de current
-
-                        if vert == target:
-                            return distance[target]
-
-    return distance[target]
-
-# -----------------------------------------------
-
-
-def distance_lst(graph, seed, target):
-    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
-    #
-    visited = np.zeros(len(graph), dtype=np.int8)
-    visited[seed] = True # iniciamos a descoberta dos vertices pela semente
-
-    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
-    #    vertice na arvore gerada pela busca
-    #
-    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
-
-    # [NOTE] Se um vertice terminar com distance[v] == -1, significa que ele nao esta conectado a raiz
-
-    distance[seed] = 0 # definimos o nivel da raiz como 0
-
-    # queue: fila com os indices dos vertices que precisam ser investigados
-    #   |_ queue[0]: o vertice a ser investigado no momento
-    #
-    queue = [seed]
-
-    while (len(queue) != 0):
-        current = queue[0] # pegamos o indice do vertice sendo investigado
-        queue.pop(0) # retiramos ele da fila
-
-        for neighbor in graph[current]: # verificamos todos os vizinhos do vertice sendo investigado
-            if neighbor != current: # para evitar loops, ignoramos arestas do tipo (i,i)
-                if not visited[neighbor]: # o vizinho ainda nao foi investigado
-                    queue.append(neighbor) # adicionamos o vizinho a lista para ser investigado
-                    visited[neighbor] = True # indicamos que o vizinho ja foi descoberto
-        
-                    distance[neighbor] = distance[current] + 1 # declaramos neighbor como estando 1 nivel acima de cur
-
-                    if neighbor == target:
-                        return distance[target]
-
-    return distance[target]
-
-# -----------------------------------------------
-
-
 def distance(graph, seed, target):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
-    if graph.mem_mode =='mtx':
-        return distance_mtx(graph, seed, target)
+    if not graph.directed:
+        if not graph.weighted:
+            return bfs(graph, seed, target)[0][target]
+
+        elif not graph.has_neg_weights:
+            return dijkstra(graph, seed, target)[0][target]
+
     else:
-        return distance_lst(graph, seed, target)
+        return bellman_ford(graph, target)[0][seed]
+
+    return None
 
 # -----------------------------------------------
 
