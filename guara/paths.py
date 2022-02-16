@@ -240,24 +240,26 @@ def diameter(graph):
 
 # -----------------------------------------------
 
-def dijkstra(graph, s):
+def dijkstra(graph, seed, target=None):
 
-    dist = np.array( [ np.inf for v in range(len(graph)) ] )
-    dist[s] = 0
+    # dist = [ np.inf for v in range(len(graph)) ]
+    dist = np.full( shape=(len(graph)), fill_value=np.inf )
+    dist[seed] = 0
 
-    parent = np.array( [ -1 for v in range(len(graph)) ] )
-    parent[s] = s
+    # parent = [ -1 for v in range(len(graph)) ]
+    parent = np.full( shape=(len(graph)), fill_value=(-1) )
+    parent[seed] = seed
 
     # O heap ponderado, onde cada elemento tem uma chave identificadora e o peso que define 
     # sua ordem de prioridade. Usaremos os indices dos vertices como as chaves e as distancias 
     # ate a semenete como seus pesos
     heap = weighted_heap()
 
-    for v in range(len(graph)):
-        heap.insert(v, np.inf) if (v != s) else heap.insert(s, 0)
+    for v in graph:
+        heap.insert(v, np.inf) if (v != seed) else heap.insert(seed, 0)
 
     u = heap.remove()
-    while u is not None:
+    while (u is not None) and (u != target):
         u = u[0]
         for v in graph.neighbors(u):
             e = graph.edge(u,v)
