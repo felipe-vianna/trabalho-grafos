@@ -6,6 +6,9 @@ class weighted_heap():
     def __init__(self):
         self.queue = [] # a fila de prioridade
 
+    def __len__(self):
+        return len(self.queue)
+
     # -------------------------------------------------------------------
 
     def insert(self, key, weight):
@@ -15,13 +18,11 @@ class weighted_heap():
         a prioridade, a posicao do elemento na fila.
         """
 
-        self.queue.append((key, weight)) # adicionamos o elemento na fila, ao final do heap
+        self.queue.append((key, weight)) # adicionamos o elemento no final do heap
 
         # print(self.queue)
 
-        index = len(self.queue) - 1
-
-        self.climb(index) # subimos o elemento para o local correto no heap
+        self.climb(index=(len(self.queue) - 1)) # subimos o elemento para o local correto no heap
 
     # -------------------------------------------------------------------
 
@@ -40,11 +41,9 @@ class weighted_heap():
         else:
             self.queue.pop(-1) # retiramos o ultimo elemento do heap
 
-        index = 0
-
         # print(self.queue)
 
-        self.fall(index) # descemos o elemento que foi colocado no topo para o local correto
+        self.fall(index=0) # descemos o elemento que foi colocado no topo para o local correto
 
         return root
 
