@@ -234,10 +234,40 @@ def depth_search(graph, seed=0, savefile=None):
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
-    if graph.mem_mode == 'mtx':
-        distance, parent = depth_search_mtx(graph,seed)
-    else:
-        distance, parent = depth_search_lst(graph,seed)
+    # [NOTE] Se um vertice v terminar com distance[v] == -1 e/ou parent[v] == -1, significa que ele nao
+    #    esta conectado a raiz
+
+    # visited[v]: flag booleana indicando se o vertice v ja foi investigado
+    visited = np.zeros(graph.n, dtype=np.uint8) # flags indicando se o vertice ja foi visitado
+
+    # distance[v]: representa a distancia, em arestas, de v ate a raiz, eh equivalente ao nivel do
+    #    vertice na arvore gerada pela busca
+    distance = np.full(len(graph), fill_value=(-1), dtype=np.int16) # array de tamanho n preenchido com -1
+    distance[seed] = 0 # definimos o nivel da raiz como 0
+
+    # parent[v]: o vertice pai de v na arvore gerada pela busca
+    parent = np.full(len(graph), fill_value=(-1), dtype=np.int32) # array de tamanho n preenchido com -1
+    parent[seed] = seed # colocamos a raiz como pai de si mesma
+
+    # stack: pilha dos vertices que precisam ser investigados
+    stack = [seed]
+
+    while (len(stack) != 0):
+        u = stack[-1] # pegamos o vertice do topo da pilha
+        stack.pop(-1) # retiramos ele da pilha
+        
+        if not visited[u]:
+            visited[u] = True
+
+            # [REF] https://stackoverflow.com/questions/6771428/most-efficient-way-to-reverse-a-numpy-array
+            for v in graph.neighbors(u)[::-1]:
+                # seguindo o padrao da aula 5 (slide 18) percorremos os vizinhos em ordem descrescente
+                # assim os vizinhos de menor indice ficam no topo da pilha para serem investigados primeiro
+                if not visited[v]: # se o vizinho ja foi visitado, nao ha pq adiciona-lo na pilha
+                    stack.append(v)
+
+                    distance[v] = distance[u] + 1 # o nivel do noh neighbor eh um nivel acima do atual
+                    parent[v] = u # o pai do noh neighbor eh o no sendo analisado
 
     if savefile:
         with open(savefile,'w') as f:
