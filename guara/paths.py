@@ -290,31 +290,37 @@ def bellman_ford(graph, target):
 # -----------------------------------------------
 
 
-def mst(graph, s, savefile=None):
+def mst(graph, seed, savefile=None):
     """
     Recebe um  grafo nao-direcionado e um vertice semente para o algoritmo de Prim, retornando
     a MST resultante.
 
     A MST eh retornada como uma tupla (parent, cost), onde parent e cost sao listas no formato:
-        parent[v]: o vert 'u' da aresta (u,v) presente na MST (para v != s)
-        cost[v]: o peso da aresta (u,v) descrita por parent[v] (para v != s)
-        parent[s] == s
-        cost[s] == 0
+
+        parent[v]: o vert 'u' da aresta (u,v) presente na MST (para v != seed)
+        cost[v]: o peso da aresta (u,v) descrita por parent[v] (para v != seed)
+        parent[seed]: seed
+        cost[seed]: 0
+
     Para obter o custo total da arvore, pode-se usar o metodo cost.sum()
 
-    Caso o grafo seja desconexo, nao existe (por definicao) uma MST. Nesse caso eh retornada a
-    tupla (None, None).
+    Caso o grafo seja desconexo, nao existe (por definicao) uma MST. Ainda assim, os vetores
+    resultantes da execucao do algoritmo sao retornados. O usuario pode identificar esse caso
+    quando parent[v] == -1 para algum v, pois isso indica que esse vertice nao foi inserido
+    na arvore.
 
     Caso seja especificado um arquivo em savefile, o arquivo eh no formato:
         primeira linha: '<numero_de_vertices> <custo_total_mst>'
         demais linhas: '<u> <v> <peso_uv>'
     """
 
-    cost = np.array([ np.inf for v in graph ])
-    cost[s] = 0
+    # cost = np.array([ np.inf for v in graph ])
+    cost = np.full( shape=len(graph), fill_value=np.inf )
+    cost[seed] = 0
 
-    parent = np.array([ -1 for v in graph ]) # nesse algoritmo, o pai de um vertice eh o no que o inseriu na arvore
-    parent[s] = s
+    # parent = np.array([ -1 for v in graph ]) # nesse algoritmo, o pai de um vertice eh o no que o inseriu na arvore
+    parent = np.full( shape=len(graph), fill_value=(-1)) # nesse algoritmo, o pai de um vertice eh o no que o inseriu na arvore
+    parent[seed] = seed
 
     # O heap ponderado, onde cada elemento tem uma chave identificadora e o peso que define 
     # sua ordem de prioridade. Usaremos os indices dos vertices como as chaves e as distancias 
@@ -322,12 +328,12 @@ def mst(graph, s, savefile=None):
     heap = weighted_heap()
 
     for v in graph:
-        heap.insert(v, np.inf) if (v != s) else heap.insert(s, 0)
+        heap.insert(v, np.inf) if (v != seed) else heap.insert(seed, 0)
 
     u = heap.remove() # tiramos a semente do heap
 
     while u is not None:
-        u = u[0] #lembrando que cada elemento no heap contem chave e peso, pegamos a chave (vert)
+        u = u[0] #lembrando que cada elemento no heap contem chave e peso, pegamos a chave
 
         for v in graph.neighbors(u):
             e = graph.edge(u,v)
@@ -343,16 +349,17 @@ def mst(graph, s, savefile=None):
 
         u = heap.remove()
 
-    if (-1 in parent): 
-        # ha componentes desconexas no grafo, entao nao existe MST desse grafo
-        # (por definicao a MST conecta todos os vertices do grafo)
-        return None, None
+    # if (-1 in parent): 
+    #     # ha componentes desconexas no grafo, entao nao existe MST desse grafo
+    #     # (por definicao a MST conecta todos os vertices do grafo)
+    #     return None, None
 
     if savefile:
         with open(savefile,'w') as f:
-            f.write(f'{len(cost)} {cost.sum()}')
+            # f.write(f'{len(cost)} {cost.sum()}')
             for v in range(len(graph)):
-                if v != s:
-                    f.write(f'{parent[v]} {v} {cost[v]}\n')
+                if v != seed:
+                    # f.write(f'{parent[v]} {v} {cost[v]}\n')
+                    f.write(f'{parent[v]} {v}\n')
 
     return parent, cost
