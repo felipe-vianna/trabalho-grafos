@@ -210,7 +210,7 @@ def breadth_search(graph, seed=0, savefile=None):
         v = queue[0] # pegamos o vertice do inicio da fila
         queue.pop(0) # retiramos ele da fila
 
-        for u in graph.neigbors(v):
+        for u in graph.neighbors(v):
             if u != v: # para evitar loops, ignoramos arestas do tipo (i,i)
                 if not visited[u]: # o vizinho u ainda nao foi investigado
                     queue.append(u) # adicionamos o vizinho na fila para ser investigado
