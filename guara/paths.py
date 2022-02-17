@@ -182,9 +182,9 @@ def dijkstra(graph, seed, target=None):
     heap = weighted_heap()
 
     for v in graph:
-        heap.insert(v, np.inf) if (v != seed) else heap.insert(seed, 0)
+        heap.push(v, np.inf) if (v != seed) else heap.push(seed, 0)
 
-    v = heap.remove()
+    v = heap.pop()
     while (v is not None) and (v != target):
         v = v[0] # lembrando que cada elemento do heap consiste de (chave, peso) pegamos a chave
         for n in graph.neighbors(v):
@@ -195,7 +195,7 @@ def dijkstra(graph, seed, target=None):
                 dist[n] = dist[v] + e
                 heap.update(n, dist[n])
 
-        v = heap.remove()
+        v = heap.pop()
 
     return dist, parent
 
@@ -330,9 +330,9 @@ def mst(graph, seed, savefile=None):
     heap = weighted_heap()
 
     for v in graph:
-        heap.insert(v, np.inf) if (v != seed) else heap.insert(seed, 0)
+        heap.push(v, np.inf) if (v != seed) else heap.push(seed, 0)
 
-    v = heap.remove() # tiramos a semente do heap
+    v = heap.pop() # tiramos a semente do heap
 
     while v is not None:
         v = v[0] #lembrando que cada elemento no heap contem chave e peso, pegamos a chave
@@ -349,7 +349,7 @@ def mst(graph, seed, savefile=None):
                 heap.update(n, cost[n])
                 # print(v, n, parent, cost)
 
-        v = heap.remove()
+        v = heap.pop()
 
     # if (-1 in parent): 
     #     # ha componentes desconexas no grafo, entao nao existe MST desse grafo
