@@ -274,15 +274,3 @@ class Graph:
 
 
 # -----------------------------------------------
-
-
-
-# def writeOnFile(filename, info):
-#     if filename:
-#         with open(filename,'w') as f:
-#             for v in info:
-#                 f.write('{}: {}\n'.format(v[0], v[1]))
-
-
-# MAIN
-# -----------------------------------------------

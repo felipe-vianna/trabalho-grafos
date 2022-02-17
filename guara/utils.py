@@ -26,8 +26,6 @@ class weighted_heap():
         self.lookup[key] = len(self.queue)
         self.queue.append((key, weight)) # adicionamos o elemento no final do heap
 
-        print(self.queue)
-
         self.climb(key) # subimos o elemento para o local correto no heap
 
     # -------------------------------------------------------------------
@@ -48,8 +46,6 @@ class weighted_heap():
         last = self.queue[0]
         first = self.queue.pop(-1)
         del self.lookup[ first[0] ]
-
-        print(self.queue)
 
         self.fall(key=last[0]) # descemos o elemento que foi colocado no topo para o local correto
 
@@ -89,8 +85,6 @@ class weighted_heap():
             # se o peso do pai for maior que do elemento atual, trocamos a posicao deles na fila
             self.switch(elem, parent)
 
-            print(self.queue)
-
             parent = self.parent(key)
 
         return None
@@ -111,8 +105,6 @@ class weighted_heap():
         while (child is not None) and (child[1] < elem[1]):
             # se o peso do filho for menor que do elemento atual, trocamos a posicao deles na fila
             self.switch(elem, child)
-
-            print(self.queue)
 
             child = self.smaller_child(key)
 

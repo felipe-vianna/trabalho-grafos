@@ -13,7 +13,7 @@ Graph(filename, mem_mode='lst', weighted=False, directed=False):
         O caminho para o arquivo txt, onde esta descrito o grafo
     mem_mode (str: 'mtx' ou 'lst')
         Define qual estrutura deve ser usada para armazenar
-        o grafo na memoria do computador: matriz de ajdacencia ou lista de ajdacencia
+        o grafo na memoria do computador: matriz de adjacencia ou lista de adjacencia
     weighted (bool)
         Declara se as arestas do grafo possuem peso. As arestas sao declaradas
         no arquivo filename

@@ -4,7 +4,7 @@ from guara.graph import Graph
 from guara.utils import weighted_heap
 
 # -----------------------------------------------
-
+# TP1
 
 def bfs(graph, seed, target=None, savefile=None):
     """
@@ -79,9 +79,6 @@ def bfs(graph, seed, target=None, savefile=None):
 
     return distance, parent
 
-# -----------------------------------------------
-
-
 def dfs(graph, seed, savefile=None):
     """
     Algoritmo Depth First Search. Retorna dois vetores a partir dos quais pode-se
@@ -151,10 +148,6 @@ def dfs(graph, seed, savefile=None):
 
     return distance, parent
 
-
-# -----------------------------------------------
-
-
 def DFSUtil(graph, temp, v, visited):
     visited[v] = True
  
@@ -176,8 +169,24 @@ def connectedComponents(graph, vertices):
                 cc.append(DFSUtil(graph, temp, v, visited))
         return cc
 
-# -----------------------------------------------
+def diameter(graph):
+    if type(graph) != Graph:
+        raise TypeError('graph must be instance of class Graph')
 
+    diameter = 0
+
+    for v in graph:
+            distances = bfs(graph, seed=v)[0] # pegando os tamanhos de todos os caminhos simples que saem de v
+            longest = distances.max() # pegando o tamanho do maior caminho simples que sai de v
+
+            if longest > diameter:
+                diameter = longest
+
+    return diameter   
+
+
+# -----------------------------------------------
+# TP2
 
 def distance(graph, seed, target):
     """
@@ -218,23 +227,6 @@ def distance(graph, seed, target):
 
 # -----------------------------------------------
 
-
-def diameter(graph):
-    if type(graph) != Graph:
-        raise TypeError('graph must be instance of class Graph')
-
-    diameter = 0
-
-    for v in graph:
-            distances = bfs(graph, seed=v)[0] # pegando os tamanhos de todos os caminhos simples que saem de v
-            longest = distances.max() # pegando o tamanho do maior caminho simples que sai de v
-
-            if longest > diameter:
-                diameter = longest
-
-    return diameter   
-
-# -----------------------------------------------
 
 def dijkstra(graph, seed, target=None):
     """
