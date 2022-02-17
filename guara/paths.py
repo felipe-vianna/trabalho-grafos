@@ -7,6 +7,32 @@ from guara.utils import weighted_heap
 
 
 def bfs(graph, seed, target=None, savefile=None):
+    """
+    Algoritmo Breadth First Search. Retorna dois vetores a partir dos quais pode-se
+    remontar o caminho minimo ligando a semente a quaisquer outro vertice do grafo (bem como a 
+    arvore gerada pela sua execucao) e verificar o custo desses caminhos. 
+    # -----------------------------------------------
+    Inputs
+    (class Graph) graph:
+        Grafo no qual executar o algoritmo.
+    (int) seed:
+        Semente, o vertice por onde comecar o algoritmo.
+    (int) target: -opcional-
+        O vertice no qual parar o calculo das distancias. Util quando deseja-se
+        calcular apenas a distancia entre dois vertices.
+    (str) savefile: -opcional-
+        O arquivo no qual salvar a arvore gerada pela execucao do algoritmo.
+    # -----------------------------------------------
+    Outputs
+    (int array) distance:
+        O elemento distance[v] contem a distancia do vertice v ate a semente. Armazena 0 para
+        a semente e infinito para os vertices desconexos dela, isto eh, para os quais nao haja
+        caminho interligando-os.
+    (int array) parent:
+        O elemento parent[v] contem o vertice pai de v (isto eh, seu predecessor) no caminho
+        ate a semente. Armazena a propria semente em distance[seed] e -1 nos vertices 
+        desconexos dela, isto eh, para os quais nao haja caminho interligando-os.
+    """
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
@@ -57,6 +83,29 @@ def bfs(graph, seed, target=None, savefile=None):
 
 
 def dfs(graph, seed, savefile=None):
+    """
+    Algoritmo Depth First Search. Retorna dois vetores a partir dos quais pode-se
+    remontar o caminho minimo ligando a semente a quaisquer outro vertice do grafo (bem como a 
+    arvore gerada pela sua execucao) e verificar o custo desses caminhos. 
+    # -----------------------------------------------
+    Inputs
+    (class Graph) graph:
+        Grafo no qual executar o algoritmo.
+    (int) seed:
+        Semente, o vertice por onde comecar o algoritmo.
+    (str) savefile: -opcional-
+        O arquivo no qual salvar a arvore gerada pela execucao do algoritmo.
+    # -----------------------------------------------
+    Outputs
+    (int array) distance:
+        O elemento distance[v] contem a distancia do vertice v ate a semente. Armazena 0 para
+        a semente e -1 para os vertices desconexos dela, isto eh, para os quais nao haja
+        caminho interligando-os.
+    (int array) parent:
+        O elemento parent[v] contem o vertice pai de v (isto eh, seu predecessor) no caminho
+        ate a semente. Armazena a propria semente em distance[seed] e -1 nos vertices 
+        desconexos dela, isto eh, para os quais nao haja caminho interligando-os.
+    """
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
@@ -131,6 +180,27 @@ def connectedComponents(graph, vertices):
 
 
 def distance(graph, seed, target):
+    """
+    Calcula a distancia entre dois vertices em um grafo. Para grafos nao-direcionados e
+    sem pesos, eh executado algoritmo de BFS. Para nao-direcionados com pesos nao-negativos,
+    executa-se o algoritmo de Dijkstra. Em grafos direcionados, executa-se o algoritmo de
+    Bellman-Ford.
+    # -----------------------------------------------
+    Inputs
+    (class Graph) graph:
+        Grafo no qual executar o algoritmo.
+    (int) seed:
+        Semente, o vertice de origem, por onde comecar o algoritmo.
+    (int) target:
+        O vertice de destino, no qual parar o calculo das distancias.
+    # -----------------------------------------------
+    Outputs
+    (int | float | None) distance:
+        Distancia calculada. Quando o grafo eh nao-direcionado e sem pesos, eh retornado um inteiro,
+         que sera igual a -1 caso nao haja nenhum caminho ligando os vertices. Quando o grafo eh
+         nao-direcionado e com pesos negativos, eh retornado None. Nos demais casos, sera um numero
+         em ponto flutuante, igual a infinito caso nao haja nenhum caminho entre os vertices.
+    """
     if type(graph) != Graph:
         raise TypeError('graph must be instance of class Graph')
 
@@ -167,6 +237,30 @@ def diameter(graph):
 # -----------------------------------------------
 
 def dijkstra(graph, seed, target=None):
+    """
+    Executa o algoritmo de Dijkstra. Retorna dois vetores a partir dos quais pode-se
+    remontar o caminho minimo ligando a semente a quaisquer outro vertice do grafo (bem como a 
+    arvore gerada pela execucao) e verificar o custo desses caminhos.
+    # -----------------------------------------------
+    Inputs
+    (class Graph) graph:
+        Grafo no qual executar o algoritmo.
+    (int) seed:
+        Semente, o vertice por onde comecar o algoritmo.
+    (int) target:
+        O vertice de destino, no qual parar o calculo das distancias. Util quando deseja-se
+        calcular apenas a distancia entre dois vertices.
+    # -----------------------------------------------
+    Outputs
+    (float array) distance:
+        O elemento distance[v] contem a distancia do vertice v ate a semente. Armazena 0 para
+        a semente e infinito para os vertices desconexos dela, isto eh, para os quais nao haja
+        caminho interligando-os.
+    (int array) parent:
+        O elemento parent[v] contem o vertice pai de v (isto eh, seu predecessor) no caminho
+        ate a semente. Armazena a propria semente em distance[seed] e -1 nos vertices 
+        desconexos dela, isto eh, para os quais nao haja caminho interligando-os.
+    """
 
     # dist = [ np.inf for v in range(len(graph)) ]
     dist = np.full(shape=len(graph), fill_value=np.inf)
@@ -202,6 +296,29 @@ def dijkstra(graph, seed, target=None):
 # -----------------------------------------------
 
 def floyd_warshall(graph):
+    """
+    Executa o algoritmo de Floyd-Warshall. Retorna duas matrizes (arrays de 2-dim) a partir 
+    das quais pode-se remontar o caminho minimo entre quaisquer vertices do grafo e verificar o
+    custo desses caminhos.
+    # -----------------------------------------------
+    Inputs
+    (class Graph) graph:
+        Grafo no qual executar o algoritmo.
+    # -----------------------------------------------
+    Outputs
+    (float array) distance:
+        O elemento dist[i,j] contem o custo total do menor caminho que se conhece saindo do vertice i
+        ate o vertice j. Armazena 0 em dist[i,i] e infinito para os vertices i,j desconexos, isto eh,
+        para os quais nao haja caminho interligando-os.
+    (int array) parent:
+        O elemento parent[i,j] contem o vertice pai de j (isto eh, seu predecessor) no caminho saindo
+        do vertice i ate o vertice j. Armazena i em dist[i,i] e -1 para os vertices i,j desconexos, 
+        isto eh, para os quais nao haja caminho interligando-os.
+    (bool) neg_cycle:
+        Flag que indica se foi identificado um ciclo negativo no grafo. Caso tenha sido, a distancia
+        entre os vertices no grafo nao eh bem-definida e os valores armazenados nas matrizes nao sao
+        necessariamente representativos das distancias e dos caminhos minimos no grafo.
+    """
 
     # dist[i,j]: contem o custo total do menor caminho que se conhece que vai de i para j
     dist = np.full( shape=(len(graph), len(graph)),
@@ -247,6 +364,31 @@ def floyd_warshall(graph):
 
 
 def bellman_ford(graph, target):
+    """
+    Executa o algoritmo de Bellman-Ford. Retorna dois vetores a partir dos quais pode-se remontar
+    o caminho minimo que vai de quaisquer vertices do grafo para o de destino e verificar
+    o custo desse caminho.
+    # -----------------------------------------------
+    Inputs
+    (class Graph) graph:
+        Grafo no qual executar o algoritmo.
+    (int) target:
+        O destino, vertice final de todos os caminhos para os quais sao calculados os custos.
+    # -----------------------------------------------
+    Outputs
+    (float array) distance:
+        O elemento dist[v] contem o custo total do menor caminho que se conhece saindo do vertice v
+        ate o vertice destino. Armazena 0 em dist[target] e infinito para os vertices desconexos
+        do destino, isto eh, para os quais nao haja caminho interligando-os.
+    (int array) after:
+        O elemento after[v] contem o vertice seguinte a v no caminho saindo
+        de v ate o vertice destino. Armazena o proprio destino em after[target] e -1 nos
+        vertices desconexos dele, isto eh, para os quais nao haja caminho interligando-os.
+    (bool) neg_cycle:
+        Flag que indica se foi identificado um ciclo negativo no grafo. Caso tenha sido, a distancia
+        entre os vertices no grafo nao eh bem-definida e os valores armazenados nos vetores nao sao
+        necessariamente representativos das distancias e dos caminhos minimos no grafo.
+    """
     dist = np.full(shape=len(graph), fill_value=np.inf)
     dist[target] = 0
 
