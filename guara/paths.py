@@ -250,10 +250,10 @@ def bellman_ford(graph, target):
     dist = np.full(shape=len(graph), fill_value=np.inf)
     dist[target] = 0
 
-    parent = np.full(shape=len(graph), fill_value=(-1))
-    parent[target] = target
+    after = np.full(shape=len(graph), fill_value=(-1))
+    after[target] = target
 
-    # update[v]: flag para indicar se devemos (tentar) atualizar as distancias dos vizinhos de v
+    # update[v]: flag para indicar se devemos (tentar) atualizar as distancias do vertice v
     update = np.full(shape=len(graph), fill_value=True)
     update[target] = True
 
@@ -269,10 +269,10 @@ def bellman_ford(graph, target):
                 update[v] = False
                 for n in graph.neighbors(v):
                     e = graph.edge(v,n)
-                    if (dist[n] < dist[v] + e):
-                        dist[n] = dist[v] + e
-                        parent[n] = v
-                        update[n] = True
+                    if (dist[v] > dist[n] + e):
+                        dist[v] = dist[n] + e
+                        after[v] = n
+                        update[ graph.neighbors(v) ] = True # no proximo loop tentaremos atualizar as distancias de todos os vizinhos de v
                         stop = False # se houve atualizacao em algum vertice, continuamos o algoritmo
 
     # Ao final, executamos mais um loop para verificar se ha atualizacao em alguma distancia
@@ -287,7 +287,7 @@ def bellman_ford(graph, target):
                 neg_cycle = True
                 break # ja encontramos um ciclo negativo, podemos encerrar a busca
 
-    return dist, parent, neg_cycle
+    return dist, after, neg_cycle
 
 # -----------------------------------------------
 
