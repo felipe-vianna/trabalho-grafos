@@ -283,7 +283,7 @@ def bellman_ford(graph, target):
             break
         for n in graph.neighbors(v):
             e = graph.edge(v,n)
-            if (dist[v] < (dist[n] + e)):
+            if (dist[v] > (dist[n] + e)):
                 neg_cycle = True
                 break # ja encontramos um ciclo negativo, podemos encerrar a busca
 
