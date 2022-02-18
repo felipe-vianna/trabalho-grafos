@@ -268,7 +268,7 @@ def dijkstra(graph, seed, target=None):
     heap = weighted_heap()
 
     for v in graph:
-        heap.push(v, np.inf) if (v != seed) else heap.push(seed, 0)
+        heap.push(v, dist[v])
 
     v = heap.pop()
     while (v is not None) and (v != target):
