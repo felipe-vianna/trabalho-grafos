@@ -148,14 +148,16 @@ class Graph:
             else:
                 self.adjac[v] = np.array(self.adjac[v])
 
-                neighbors = self.adjac[v][:,0] # lista (array) dos vizinhos de v
-                weights = self.adjac[v][:,1] # lista (array) dos pesos de cada aresta incidente a v
+                if len(self.adjac[v]) > 0:
+                    # se len(adjac[v]) == 0, entao v nao tem vizinhos e tentar acessa-los geraria um erro
+                    neighbors = self.adjac[v][:,0] # lista (array) dos vizinhos de v
+                    weights = self.adjac[v][:,1] # lista (array) dos pesos de cada aresta incidente a v
 
-                # # [REF] https://numpy.org/doc/stable/reference/generated/numpy.argsort.html
-                neighbors_sort_index = np.argsort(neighbors) # os indices a serem usados para ordenar a lista de vizinhos de v
+                    # # [REF] https://numpy.org/doc/stable/reference/generated/numpy.argsort.html
+                    neighbors_sort_index = np.argsort(neighbors) # os indices a serem usados para ordenar a lista de vizinhos de v
 
-                self.adjac[v][:,0] = neighbors[neighbors_sort_index] # ordenamos a lista de vizinhos do menor para o maior
-                self.adjac[v][:,1] = weights[neighbors_sort_index] # ordenamos os pesos de acordo com a lista de vizinhos
+                    self.adjac[v][:,0] = neighbors[neighbors_sort_index] # ordenamos a lista de vizinhos do menor para o maior
+                    self.adjac[v][:,1] = weights[neighbors_sort_index] # ordenamos os pesos de acordo com a lista de vizinhos
 
 
         return self.adjac
@@ -173,7 +175,10 @@ class Graph:
             if not self.weighted:
                 return self.adjac[vert]
             else:
-                # return self.adjac[vert][0] # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
+                if len(self.adjac[vert]) == 0:
+                    # se len(adjac[v]) == 0, entao v nao tem vizinhos e tentar acessa-los geraria um erro
+                    return np.int32([])
+
                 return np.int32(self.adjac[vert][:,0]) # pegamos, da linha do vertice, apenas a coluna referente ao indice dos vizinhos (e nao a dos pesos das arestas)
 
     # -----------------------------------------------
@@ -188,8 +193,14 @@ class Graph:
             return self.adjac[vert][ self.adjac[vert] != 0 ] # selecionamos, na linha referente ao vertice, os elementos nao-nulos
         else:
             if not self.weighted:
+                if len(self.adjac[vert]) == 0:
+                    return np.int32([])
+
                 return np.ones(self.adjac[vert])
             else:
+                if len(self.adjac[vert]) == 0:
+                    return np.int32([])
+
                 return self.adjac[vert][:,1] # pegamos, da linha do vertice, apenas a coluna referente aos pesos das arestas incidentes
 
     # -----------------------------------------------
@@ -214,6 +225,10 @@ class Graph:
 
                 return self.adjac[v1][where]
             else:
+                if len(self.adjac[v1]) == 0:
+                    # se len(adjac[v]) == 0, entao v nao tem vizinhos e tentar acessa-los geraria um erro
+                    return 0
+
                 where = np.searchsorted(self.adjac[v1][:,0], v2)
                 if (where == len(self.adjac[v1])) or (v2 != self.adjac[v1][where,0]):
                     # v2 nao esta na lista dos vizinhos
@@ -259,10 +274,10 @@ class Graph:
 
     # A funcao __repr__() eh chamada quando usamos print(classe)
     def __repr__(self):
-        s =  f'Graph \"{self.name}\" '
-        s += f'(mem_mode: {self.mem_mode}, weighted: {self.weighted}, directed: {self.directed})\n'
-        s += f'  {self.shape}\n'
-        s +=  '  ' + np.array2string(self.adjac, prefix='  ')
+        s =  f'Graph \"{self.name}\" shape {self.shape}\n'
+        s += f'(mem_mode: {self.mem_mode}, weighted: {self.weighted}, has_neg_weights: {self.has_neg_weights}, directed: {self.directed})'
+        # s += f'  {self.shape}\n'
+        # s +=  '  ' + np.array2string(self.adjac, prefix='  ')
         return s
 
     # A funcao __getitem__() eh chamada quando usamos classe[key]
