@@ -445,9 +445,12 @@ def mst(graph, seed, savefile=None):
     quando parent[v] == -1 para algum v, pois isso indica que esse vertice nao foi inserido
     na arvore.
 
-    Caso seja especificado um arquivo em savefile, o arquivo eh no formato:
-        primeira linha: '<numero_de_vertices> <custo_total_mst>'
-        demais linhas: '<u> <v> <peso_uv>'
+    Caso seja especificado um arquivo em savefile, cada linha no arquivo contem
+    as arestas (u,v) da arvore na forma:
+
+        "u v"
+
+    Ou seja, apenas os vertices separados por um espaco em branco.
     """
 
     # cost = [ np.inf for v in graph ]
@@ -464,7 +467,7 @@ def mst(graph, seed, savefile=None):
     heap = weighted_heap()
 
     for v in graph:
-        heap.push(v, np.inf) if (v != seed) else heap.push(seed, 0)
+        heap.push(v, cost[v])
 
     v = heap.pop() # tiramos a semente do heap
 
@@ -474,14 +477,12 @@ def mst(graph, seed, savefile=None):
         for n in graph.neighbors(v):
             e = graph.edge(v,n)
 
-            if (cost[n] > e) and (parent[v] != n):
-                # Ao percorrermos os vizinhos de v, ignoramos a aresta (n,v) que ja tenha
-                # sido incluida na arvore. Se n for pai de v, eh porque ele ja estava na 
-                # arvore e v entrou por meio dele.
+            if (cost[n] > e) and (n in heap):
+                # Ao percorrermos os vizinhos de v, avaliamos apenas os que ainda nao
+                # estiverem na arvore
                 parent[n] = v
                 cost[n] = e
                 heap.update(n, cost[n])
-                # print(v, n, parent, cost)
 
         v = heap.pop()
 

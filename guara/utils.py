@@ -14,6 +14,9 @@ class weighted_heap():
     def __getitem__(self, key):
         return self.queue[ self.lookup[key] ]
 
+    def __contains__(self, key):
+        return (key in self.lookup)
+
     # -------------------------------------------------------------------
 
     def push(self, key, weight):
