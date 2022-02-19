@@ -68,3 +68,11 @@ desenvolver, porem com o custo de fazer o tratamento de diferentes casos de graf
 possivelmente dificultando nao soh o desenvolvimento deles, mas tambem a leitura e o entedimento 
 deles. Ao utilizar os metodos fornecidos pela biblioteca, o usuario pode desvencilhar-se dessas
 preocupacoes.
+
+Para rodar os estudos de caso, basta digitar o comando na pasta raiz do projeto:
+
+    python run.py
+
+Caso queira rodar os grafos 4 e 5, é necessário fazer o download dos mesmos nos links abaixo e colocá-los descompactados na pasta grafos:
+    https://www.cos.ufrj.br/~daniel/grafos/data/grafo_W_4_1.txt.gz
+    https://www.cos.ufrj.br/~daniel/grafos/data/grafo_W_5_1.txt.gz
